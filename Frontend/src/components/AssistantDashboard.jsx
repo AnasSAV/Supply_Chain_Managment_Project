@@ -131,7 +131,7 @@ const DriverDashboard = ({ routes }) => {
   }, []);
 
   useEffect(() => {
-    if (location.pathname === '/dashboard') {
+    if (location.pathname === '/assistant') {
       console.log("Dashboard loaded"); // Debugging log
     }
   }, [location.pathname]);
@@ -201,11 +201,11 @@ const DriverDashboard = ({ routes }) => {
         </div>
 
         <div className="mb-10">
-          <h3 className="mx-6 mb-3 text-xs text-gray-300 uppercase tracking-widest">Driver</h3>
+          <h3 className="mx-6 mb-3 text-xs text-gray-300 uppercase tracking-widest">Assistant</h3>
           <Link
-            to="/dashboard"
+            to="/assistant"
             className={`flex items-center px-6 py-3 rounded-lg transition-all duration-200 no-underline ${
-              isActive('/dashboard')
+              isActive('/assistant')
                 ? 'bg-gradient-to-r from-slate-500 to-slate-800 text-white'
                 : 'text-gray-200 hover:bg-orange-100 hover:text-black'
             }`}
@@ -244,7 +244,7 @@ const DriverDashboard = ({ routes }) => {
 
 
       <div className="flex-1 p-6 bg-gray-100">
-        {location.pathname === '/dashboard' && (
+        {location.pathname === '/assistant' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <section className="p-6 space-y-5 w-800">
               <h2 className="text-3xl mb-0 font-bold">Dashboard</h2>

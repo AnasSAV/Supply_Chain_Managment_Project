@@ -75,7 +75,7 @@ function App() {
           <Route 
             path="/customer" 
             element={
-              <PrivateRoute requiredRole="Customer">
+              <PrivateRoute requiredRole="customer">
                 <CustomerDashboard />
               </PrivateRoute>
             }
@@ -83,40 +83,40 @@ function App() {
             <Route path="orders" element={<CustomerOrders />} />
             <Route path="shop" element={<Shop />} />
             <Route path="profile" element={<Profile />} />
-            <Route path="" element={<Navigate to="dashboard" />} /> {/* Redirects to dashboard */}
+            <Route path="" element={<Navigate to="/customer" />} />
           </Route>
 
           <Route 
             path="/driver" 
             element={
-              <PrivateRoute requiredRole="Driver">
+              <PrivateRoute requiredRole="driver">
                 <DriverDashboard />
               </PrivateRoute>
             }
           >
             <Route path="rides" element={<Rides />} />
             <Route path="orders" element={<DriverOrders />} />
-            <Route path="" element={<Navigate to="dashboard" />} /> {/* Redirects to dashboard */}
+            <Route path="" element={<Navigate to="/driver" />} />
           </Route>
 
           <Route 
             path="/assistant" 
             element={
-              <PrivateRoute requiredRole="Driver">
+              <PrivateRoute requiredRole="assistant">
                 <AssistantDashboard />
               </PrivateRoute>
             }
           >
             <Route path="rides" element={<AssistantRides />} />
             <Route path="orders" element={<AssistantOrders />} />
-            <Route path="" element={<Navigate to="dashboard" />} /> {/* Redirects to dashboard */}
+            <Route path="" element={<Navigate to="/assistant" />} />
           </Route>
 
           {/* Manager Protected Routes */}
           <Route 
             path="/manager" 
             element={
-              <PrivateRoute requiredRole="Manager">
+              <PrivateRoute requiredRole="manager">
                 <ManagerDashboard />
               </PrivateRoute>
             }
@@ -125,7 +125,7 @@ function App() {
             <Route path="assignments" element={<ManagerAssignments />} />
             <Route path="customers" element={<ManagerCustomers />} />
             <Route path="roster" element={<ManagerRoster />} />
-
+            <Route path="" element={<Navigate to="/manager" />} />
           </Route>
         </Routes>
       </Router>

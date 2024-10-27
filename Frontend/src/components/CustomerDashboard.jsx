@@ -23,7 +23,7 @@ const CustomerDashboard = () => {
 
   
   useEffect(() => {
-    if (location.pathname === '/dashboard') {
+    if (location.pathname === '/customer') {
       console.log("Dashboard loaded"); 
     }
   }, [location.pathname]); 
@@ -116,9 +116,9 @@ const CustomerDashboard = () => {
         <div className="mb-10">
           <h3 className="mx-6 mb-3 text-xs text-gray-300 uppercase tracking-widest">Customer</h3>
           <Link
-            to="/dashboard"
+            to="/customer"
             className={`flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${
-              isActive('/dashboard')
+              isActive('/customer')
                 ? 'bg-gradient-to-tr from-teal-900  to-slate-700 text-white'
                 : 'text-gray-200 hover:bg-orange-100 hover:text-black'
             }`}
@@ -166,7 +166,7 @@ const CustomerDashboard = () => {
         {/* Main Content Area */}
         <div className="p-6 pt-0">
           {/* Conditionally render dashboard content based on the current path */}
-          {location.pathname === '/dashboard' && (
+          {location.pathname === '/customer' && (
             <section className="p-3 sm:p-10 space-y-3">
               <div className="flex flex-col space-y-6 md:space-y-0 md:flex-row justify-between">
                 <div className="mr-6">

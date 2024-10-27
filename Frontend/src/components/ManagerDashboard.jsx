@@ -157,7 +157,7 @@ const ManagerDashboard = () => {
         <div className="mb-10">
           <h3 className="mx-6 mb-3 text-xs text-gray-300 uppercase tracking-widest">Admin</h3>
           <Link
-            to="/dashboard"
+            to="/manager"
             className={`flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${
               isActive('/dashboard')
                 ? 'bg-gradient-to-tr from-purple-700  to-blue-800 text-white'
@@ -238,7 +238,7 @@ const ManagerDashboard = () => {
 
         {/* Main Content Area */}
         <div className="p-6">
-          {location.pathname === '/dashboard' && (
+          {location.pathname === '/manager' && (
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-white rounded-lg shadow-md p-4 flex-auto">
                 <h2 className="text-lg font-bold mb-4">Performance Chart</h2>
