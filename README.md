@@ -43,7 +43,7 @@ Make sure you have the following installed:
 
 1. Navigate to the frontend directory:
    ```bash
-   cd ../Frontend
+   cd Frontend
    ```
 
 2. Install the required dependencies:
