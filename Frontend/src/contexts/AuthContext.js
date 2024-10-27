@@ -7,18 +7,19 @@ export const AuthProvider = ({ children }) => {
     username: '',
     profilePic: '',
     role: null, // To store the user's role
+    branch_id: null,
   });
 
   const isAuthenticated = () => {
     return user.role !== null; // Return true if user role is set, false otherwise
   };
 
-  const login = (username, profilePic, role) => {
-    setUser({ username, profilePic, role });  // Set user details on login
+  const login = (username, profilePic, role, branch_id) => {
+    setUser({ username, profilePic, role, branch_id });  // Set user details on login
   };
 
   const logout = () => {
-    setUser({ username: '', profilePic: '', role: null }); // Clear user details on logout
+    setUser({ username: '', profilePic: '', role: null, branch_id: null }); // Clear user details on logout
   };
 
   return (

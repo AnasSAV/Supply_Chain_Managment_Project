@@ -34,8 +34,19 @@ exports.login = async (req, res) => {
             { expiresIn: '1h' }
         );
 
+        // Prepare response based on role
+        const response = {
+            token,
+            role: role.toLowerCase()
+        };
+
+        // Add branch_id to response for specific roles
+        if (['manager', 'driver', 'assistant'].includes(role.toLowerCase())) {
+            response.branch_id = user.branch_id;
+        }
+
         console.log('Login successful:', { email, role }); // Log successful login
-        res.json({ token, role: role.toLowerCase() });
+        res.json(response);
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ message: 'Server error.', error: error.message });

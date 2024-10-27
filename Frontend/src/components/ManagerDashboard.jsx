@@ -47,6 +47,7 @@ const ManagerDashboard = () => {
   };
 
   useEffect(() => {
+    console.log(user);
     const handleBeforeUnload = (event) => {
       if (isSessionExpired()) {
         event.preventDefault(); // Prevent the default action

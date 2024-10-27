@@ -39,12 +39,14 @@ const Login = () => {
       if (response.ok) {
         // Store token in localStorage
         localStorage.setItem('token', data.token);
+        const branch_id = data.branch_id;
         
         // Update AuthContext with user details
         login(
           username,
           null,
-          data.role
+          data.role,
+          branch_id
         );
 
         // Navigate based on role
