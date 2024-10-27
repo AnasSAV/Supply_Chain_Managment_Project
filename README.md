@@ -1,7 +1,5 @@
-Here's the README content formatted so you can directly copy and paste it into your README file:
 
-```markdown
-# Project Name
+# Supply_Chain_Management
 
 This project includes a frontend built with React and a backend using Node.js with Express. Follow the instructions below to set up and run the application locally.
 
