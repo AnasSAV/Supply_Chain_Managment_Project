@@ -60,7 +60,7 @@ function App() {
           <Route 
             path="/admin" 
             element={
-              <PrivateRoute requiredRole="Admin">
+              <PrivateRoute requiredRole="admin">
                 <AdminDashboard />
               </PrivateRoute>
             }
@@ -69,7 +69,7 @@ function App() {
             <Route path="assignments" element={<Assignments />} />
             <Route path="analytics" element={<Analytics />} />
             <Route path="roster" element={<Roster />} />
-            <Route path="" element={<Navigate to="dashboard" />} />
+            <Route path="" element={<Navigate to="/admin" />} />
           </Route>
 
           <Route 

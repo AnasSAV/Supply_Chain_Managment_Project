@@ -37,8 +37,8 @@ const AdminDashboard = () => {
   const navigate = useNavigate(); // For navigating to login page
 
   // Set chart width and height conditionally based on the route
-  const chartWidth = location.pathname === '/dashboard' ? 350 : 800;
-  const chartHeight = location.pathname === '/dashboard' ? 200 : 300;
+  const chartWidth = location.pathname === '/admin' ? 350 : 800;
+  const chartHeight = location.pathname === '/admin' ? 200 : 300;
 
   const handleLogout = () => {
     logout(); // Call the logout function from AuthContext
@@ -302,6 +302,8 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+
 
 
 
