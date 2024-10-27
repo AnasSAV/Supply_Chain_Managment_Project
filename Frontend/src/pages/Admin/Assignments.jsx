@@ -27,6 +27,9 @@ const AssignOrdersToTrains = () => {
     { id: 'T001'},
     { id: 'T002' },
     { id: 'T003'},
+    { id: 'T004'},
+    { id: 'T005'},
+    { id: 'T006'}
   ];
 
     const trainTable = [
@@ -51,25 +54,52 @@ const AssignOrdersToTrains = () => {
   };
 
   // Handle creating a new train trip
-  const handleCreateTrain = () => {
+  const handleCreateTrain = async () => {
     if (!newTrain.id || !newTrain.date) {
       toast.error('Please fill in all fields.');
       return;
     }
 
-    const trainId = `train-${trains.length + 1}`;
-    setTrains([
-      ...trains,
-      {
-        id: trainId,
-        name: newTrain.id,
-        // branch: newTrain.branch,
-        date: newTrain.date,
-        assignedOrders: [],
-      },
-    ]);
-    setNewTrain({ id: '', branch: '', date: '' });
-    toast.success('Train trip created successfully!');
+    try {
+      const response = await fetch('http://localhost:3000/api/trainTrips/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          train_id: newTrain.id,
+          date: newTrain.date
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create train trip');
+      }
+
+      const data = await response.json();
+
+      // Update local state after successful API call
+      const trainId = `train-${trains.length + 1}`;
+      setTrains([
+        ...trains,
+        {
+          id: trainId,
+          name: newTrain.id,
+          date: newTrain.date,
+          assignedOrders: [],
+        },
+      ]);
+
+      // Reset form
+      setNewTrain({ id: '', branch: '', date: '' });
+      toast.success('Train trip created successfully!');
+
+    } catch (error) {
+      console.error('Error creating train trip:', error);
+      toast.error(error.message || 'Failed to create train trip');
+    }
   };
 
   // Handle assigning selected orders to train
@@ -385,6 +415,7 @@ const AssignOrdersToTrains = () => {
 };
 
 export default AssignOrdersToTrains;
+
 
 
 
