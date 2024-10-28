@@ -1,4 +1,3 @@
-import React, { useState, useEffect, useContext } from 'react'; // Added useContext
 import { Link, Outlet, useLocation } from 'react-router-dom'; 
 import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'; 
 import Orders from '../pages/Manager/Orders'; 
@@ -12,6 +11,73 @@ import { SiGoogleanalytics } from "react-icons/si";
 import { IoIosPeople } from "react-icons/io";
 import { MdAssignment } from "react-icons/md";
 import { GiRooster } from "react-icons/gi";
+import { GoogleMap, useLoadScript, Marker, DirectionsRenderer, TrafficLayer } from '@react-google-maps/api';
+import { useEffect, useRef, useState, useContext } from 'react';
+
+const libraries = ["places"];
+
+const MapComponent = ({ currentPosition, markers, setMarkers, directions }) => {
+  const mapRef = useRef(null);
+
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: "AIzaSyCJDIGEYdFQRCcM7Fg4QEE6N6YfUpPjnTg", 
+    libraries,
+  });
+
+  const handleMapClick = (event) => {
+    const newMarker = {
+      lat: event.latLng.lat(),
+      lng: event.latLng.lng(),
+    };
+    setMarkers((current) => [...current, newMarker]);
+  };
+
+  const handleMarkerClick = (marker) => {
+    alert(`Marker at position: ${marker.lat}, ${marker.lng}`);
+  };
+
+  useEffect(() => {
+    if (mapRef.current && currentPosition) {
+      mapRef.current.panTo(currentPosition);
+    }
+  }, [currentPosition]);
+
+  if (loadError) return <div>Error loading maps</div>;
+  if (!isLoaded) return <div>Loading Maps</div>;
+
+  return (
+    <GoogleMap
+      mapContainerStyle={{ width: '100%', height: '500px' }}
+      center={currentPosition}
+      zoom={10}
+      onClick={handleMapClick}
+      onLoad={(map) => (mapRef.current = map)}
+      options={{
+        zoomControl: true,
+        streetViewControl: false,
+        fullscreenControl: false,
+        mapTypeControl: false,
+        panControl: true,
+        mapId: 'YOUR_MAP_ID', // Optional for map styling
+      }}
+    >
+      {markers.map((marker, index) => (
+        <Marker
+          key={index}
+          position={marker}
+          onClick={() => handleMarkerClick(marker)}
+          icon={{
+            url: '/path/to/truck-icon.png',
+            scaledSize: isLoaded && window.google ? new window.google.maps.Size(50, 50) : undefined,
+          }}
+        />
+      ))}
+
+      {directions && <DirectionsRenderer directions={directions} />}
+      <TrafficLayer />
+    </GoogleMap>
+  );
+};
 
 const ManagerDashboard = () => {
   const location = useLocation();
@@ -19,18 +85,37 @@ const ManagerDashboard = () => {
   const { user, logout } = useContext(AuthContext); 
   const navigate = useNavigate();
 
+  const [currentPosition, setCurrentPosition] = useState({ lat: 6.9271, lng: 79.8612 }); // Default position (Colombo)
+  const [markers, setMarkers] = useState([{ lat: 6.9271, lng: 79.8612 }]); // Default marker at Colombo
+  const [directions, setDirections] = useState(null);
+
   const data = [
-    { name: 'A', value: 400 },
-    { name: 'B', value: 300 },
-    { name: 'C', value: 200 },
-    { name: 'D', value: 278 },
-    { name: 'E', value: 189 },
-    { name: 'F', value: 400 },
-    { name: 'G', value: 300 },
-    { name: 'H', value: 200 },
-    { name: 'I', value: 278 },
-    { name: 'J', value: 189 }
+    { name: 'Jan', value: 30 },
+    { name: 'Feb', value: 45 },
+    { name: 'Mar', value: 28 },
+    { name: 'Apr', value: 55 },
+    { name: 'May', value: 48 },
+    { name: 'Jun', value: 60 },
+    { name: 'Jul', value: 72 },
   ];
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentPosition({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+          console.log("Current position set:", position.coords); // Debugging log
+        },
+        () => {
+          console.error("Error getting user location");
+        }
+      );
+    }
+  }, []);
+
   
   const handleLogout = () => {
     logout(); // Call the logout function from AuthContext
@@ -183,7 +268,7 @@ const ManagerDashboard = () => {
             Orders
           </Link>
 
-          <Link
+          {/* <Link
             to="/manager/customers"
             className={`flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${
               isActive('/manager/customers')
@@ -194,7 +279,7 @@ const ManagerDashboard = () => {
           >
             <IoIosPeople className="h-5 w-5 mr-3" />
             Customers
-          </Link>
+          </Link> */}
 
           <Link
             to="/manager/assignments"
@@ -218,7 +303,7 @@ const ManagerDashboard = () => {
             }`}
             style={{ textDecoration: 'none' }}
           >
-            <GiRooster className="h-5 w-5 mr-3" />
+            <IoIosPeople className="h-5 w-5 mr-3" />
             Rooster
           </Link>
         </div>
@@ -239,38 +324,85 @@ const ManagerDashboard = () => {
 
         {/* Main Content Area */}
         <div className="p-6">
+
           {location.pathname === '/manager' && (
             <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white rounded-lg shadow-md p-4 flex-auto">
-                <h2 className="text-lg font-bold mb-4">Performance Chart</h2>
-                <div className="flex justify-center flex-shrink-0">
-                  <BarChart width={800} height={300} data={data}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="url(#colorUv)" />
+              <h2 className="text-4xl font-bold mb-1 text-gray-800">Dashboard</h2>
+              <p className="text-lg font-bold mt-0 text-gray-400"></p>
+              <div className="bg-white rounded-lg shadow-lg p-4 flex-auto">
+              <h2 className="text-lg font-bold mb-4 text-gray-800">Performance Chart</h2>
+              <div className="flex justify-center">
+                <ResponsiveContainer width="100%" height={350}>
+                  <LineChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="0" stroke="#e0e0e0" />
+                    <XAxis 
+                      dataKey="name" 
+                      tick={{ fontSize: 12, fill: '#555' }} 
+                      axisLine={{ stroke: '#d0d0d0' }} 
+                      tickLine={false} 
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12, fill: '#555' }} 
+                      axisLine={{ stroke: '#d0d0d0' }} 
+                      tickLine={false} 
+                      allowDecimals={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)' }}
+                      labelStyle={{ fontWeight: 'bold', color: '#333' }}
+                      itemStyle={{ color: '#555' }}
+                    />
                     <defs>
-                      <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#004e92" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#00428" stopOpacity={0.8}/>
+                      <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.9} />
+                        <stop offset="95%" stopColor="#60a5fa" stopOpacity={0.5} />
                       </linearGradient>
+                      <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur"/>
+                        <feOffset in="blur" dx="4" dy="4" result="offsetBlur"/>
+                        <feMerge>
+                          <feMergeNode in="offsetBlur"/>
+                          <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                      </filter>
                     </defs>
-                  </BarChart>
-                </div>
-                <div className="bg-white rounded-lg shadow-md p-4">
-                  <h2 className="text-lg font-bold mb-4">Order Map</h2>
-                  <OrderMap />
-                </div>
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="url(#lineGradient)"
+                      strokeWidth={4}
+                      dot={{ fill: '#3b82f6', strokeWidth: 2, r: 6, stroke: '#fff', filter: 'url(#shadow)' }}
+                      activeDot={{ r: 8, fill: '#60a5fa', stroke: '#3b82f6', strokeWidth: 3, filter: 'url(#shadow)' }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-              <div className="grid grid-cols-1 gap-6">
                 <div className="bg-white rounded-lg shadow-md p-4">
-                  <h2 className="text-lg font-bold mb-4">Recent Orders</h2>
+                <div className="bg-white rounded-lg shadow-md p-4">
                   <Orders limit={4} /> 
                   <Link to="/manager/orders" className="text-blue-600 hover:underline mt-4 block">See More</Link>
                 </div>
-                <div className="bg-white rounded-lg shadow-md p-4">
-                  <h2 className="text-lg font-bold mb-4">Recent Customers</h2>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 gap-6">
+
+                  {/* Map and Route Information */}
+                  <div className="relative p-4 bg-white rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-100">
+                    <div className="absolute inset-0 rounded-lg shadow-xl bg-gradient-to-r from-blue-100 to-blue-300 opacity-50"></div>
+                    <div className="relative z-10">
+                        <h2 className="text-lg font-semibold text-gray-800 mb-4">Map Overview</h2>
+                        {/* Increased height of the map container */}
+                        <div className="bg-white rounded-lg overflow-hidden shadow-lg h-206"> {/* Change h-100 to h-96 or another desired height */}
+                            <MapComponent
+                                currentPosition={currentPosition}
+                                markers={markers}
+                                setMarkers={setMarkers}
+                                directions={directions}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-white rounded-lg shadow-md p-4 shadow-lg">
                   <Customers limit={4} /> 
                   <Link to="/manager/customers" className="text-blue-600 hover:underline mt-4 block">See More</Link>
                 </div>
