@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const orders = [
@@ -6,47 +6,126 @@ const orders = [
     id: '001',
     date: 'Oct 1, 2024',
     products: '2x Product A, 1x Product B',
-    imgSrc: 'https://images.unsplash.com/photo-1646753522408-077ef9839300?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NjZ8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+    imgSrc: 'https://images.unsplash.com/photo-1646753522408-077ef9839300?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
   },
   {
     id: '002',
     date: 'Oct 3, 2024',
     products: '1x Product C',
-    imgSrc: 'https://images.unsplash.com/photo-1651950519238-15835722f8bb?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8Mjh8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+    imgSrc: 'https://images.unsplash.com/photo-1651950519238-15835722f8bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
   },
   {
     id: '003',
     date: 'Oct 5, 2024',
     products: '1x Product D, 1x Product E',
-    imgSrc: 'https://images.unsplash.com/photo-1651950537598-373e4358d320?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8MjV8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+    imgSrc: 'https://images.unsplash.com/photo-1651950537598-373e4358d320?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
   },
   {
     id: '004',
     date: 'Oct 7, 2024',
     products: '3x Product F',
-    imgSrc: 'https://images.unsplash.com/photo-1651950540805-b7c71869e689?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8Mjl8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+    imgSrc: 'https://images.unsplash.com/photo-1651950540805-b7c71869e689?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
   },
   {
     id: '005',
     date: 'Oct 9, 2024',
     products: '2x Product G',
-    imgSrc: 'https://images.unsplash.com/photo-1649261191624-ca9f79ca3fc6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwcm9maWxlLXBhZ2V8NDd8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
+    imgSrc: 'https://images.unsplash.com/photo-1649261191624-ca9f79ca3fc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
   },
 ];
 
-export {orders};
+const Modal = ({ isOpen, onClose, onConfirm, orderId, quantity }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="absolute inset-0 bg-black opacity-50" onClick={onClose}></div>
+      <div className="bg-white p-6 rounded shadow-lg z-10">
+        <h2 className="text-lg font-bold mb-4">Confirm Order</h2>
+        <p>Are you sure you want to buy {quantity} of Order #{orderId}?</p>
+        <div className="mt-6 flex justify-end">
+          <button
+            className="mr-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            onClick={onConfirm}
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Shop = () => {
+  const [quantities, setQuantities] = useState(
+    orders.reduce((acc, order) => {
+      acc[order.id] = 1; 
+      return acc;
+    }, {})
+  );
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState('');
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
+  const [confirmationMessage, setConfirmationMessage] = useState(''); 
+
+  useEffect(() => {
+    if (confirmationMessage) {
+      const timer = setTimeout(() => {
+        setConfirmationMessage('');
+      }, 3000); 
+      return () => clearTimeout(timer); 
+    }
+  }, [confirmationMessage]);
+
+  const handleIncrement = (id) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: prev[id] + 1, 
+    }));
+  };
+
+  const handleDecrement = (id) => {
+    setQuantities((prev) => ({
+      ...prev,
+      [id]: Math.max(prev[id] - 1, 1), 
+    }));
+  };
+
+  const handleBuy = (id) => {
+    setSelectedOrderId(id);
+    setSelectedQuantity(quantities[id]);
+    setIsModalOpen(true); 
+  };
+
+  const confirmOrder = () => {
+    setConfirmationMessage(`Order #${selectedOrderId} has been confirmed.`); 
+    setIsModalOpen(false); 
+  };
 
   return (
     <div className="p-6">
+      {confirmationMessage && (
+        <div className="mb-4 p-4 bg-green-100 text-green-800 border border-green-400 rounded flex items-center justify-between">
+          <span className="font-semibold">{confirmationMessage}</span>
+          <button
+            className="ml-4 p-1 bg-green-200 rounded-full hover:bg-green-300"
+            onClick={() => setConfirmationMessage('')}
+          >
+            &times;
+          </button>
+        </div>
+      )}
       <section className="w-fit mx-auto grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 justify-items-center justify-center gap-y-20 gap-x-14 mt-10 mb-5">
-        
         {orders.map((order) => (
-          <Link
+          <div
             key={order.id}
-            to={`/customer/orders/${order.id}`}
             className="w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl"
           >
             <img
@@ -62,31 +141,48 @@ const Shop = () => {
                 <del>
                   <p className="text-sm text-gray-600 cursor-auto ml-2">$199</p>
                 </del>
-                <div className="ml-auto">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    className="bi bi-bag-plus"
-                    viewBox="0 0 16 16"
-                  >
-                    <path fillRule="evenodd" d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z" />
-                    <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
-                  </svg>
-                </div>
+              </div>
+
+              {/* Quantity Selector */}
+              <div className="flex items-center mt-3">
+                <button
+                  className="px-2 py-1 bg-gray-200 text-gray-600 rounded-l"
+                  onClick={() => handleDecrement(order.id)} 
+                >
+                  -
+                </button>
+                <div className="px-3 py-1 border border-gray-200 text-gray-800">{quantities[order.id]}</div>
+                <button
+                  className="px-2 py-1 bg-gray-200 text-gray-600 rounded-r"
+                  onClick={() => handleIncrement(order.id)} 
+                >
+                  +
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleBuy(order.id); 
+                  }}
+                  className="ml-auto px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Buy
+                </button>
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </section>
+
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)} 
+        onConfirm={confirmOrder} 
+        orderId={selectedOrderId}
+        quantity={selectedQuantity}
+      />
     </div>
   );
 };
 
 export default Shop;
-
-
-
-
-
+export { orders };
