@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-const orders = [
+export const orders = [
   {
     id: '001',
     date: 'Oct 1, 2024',
@@ -74,6 +74,7 @@ const Shop = () => {
   const [selectedOrderId, setSelectedOrderId] = useState('');
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [confirmationMessage, setConfirmationMessage] = useState(''); 
+  const [limitMessage, setLimitMessage] = useState(''); // New state for limit message
 
   useEffect(() => {
     if (confirmationMessage) {
@@ -82,13 +83,26 @@ const Shop = () => {
       }, 3000); 
       return () => clearTimeout(timer); 
     }
-  }, [confirmationMessage]);
+    if (limitMessage) {
+      const timer = setTimeout(() => {
+        setLimitMessage('');
+      }, 3000); // Clear limit message after 3 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [confirmationMessage, limitMessage]);
 
   const handleIncrement = (id) => {
-    setQuantities((prev) => ({
-      ...prev,
-      [id]: prev[id] + 1, 
-    }));
+    setQuantities((prev) => {
+      const newQuantity = prev[id] + 1;
+      if (newQuantity > 10) {
+        setLimitMessage('You can only select up to 10 items.'); // Set limit message
+        return prev; // Do not update if limit exceeded
+      }
+      return {
+        ...prev,
+        [id]: newQuantity,
+      };
+    });
   };
 
   const handleDecrement = (id) => {
@@ -122,6 +136,17 @@ const Shop = () => {
           </button>
         </div>
       )}
+      {limitMessage && ( // Display limit message
+        <div className="mb-4 p-4 bg-red-100 text-red-800 border border-red-400 rounded flex items-center justify-between">
+          <span className="font-semibold">{limitMessage}</span>
+          <button
+            className="ml-4 p-1 bg-red-200 rounded-full hover:bg-red-300"
+            onClick={() => setLimitMessage('')}
+          >
+            &times;
+          </button>
+        </div>
+      )}
       <section className="w-fit mx-auto grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 justify-items-center justify-center gap-y-20 gap-x-14 mt-10 mb-5">
         {orders.map((order) => (
           <div
@@ -139,31 +164,28 @@ const Shop = () => {
               <div className="flex items-center">
                 <p className="text-lg font-semibold text-black cursor-auto my-3">{order.date}</p>
                 <del>
-                  <p className="text-sm text-gray-600 cursor-auto ml-2">$199</p>
-                </del>
+                  <p className="text-sm text-gray-600 cursor-auto ml-2">199 $</p>
+ </del>
+ <p className="text-sm text-gray-600 cursor-auto ml-2">179</p>
+                <p className="text-lg font-bold text-black cursor-auto ml-2">${order.price}</p>
               </div>
-
-              {/* Quantity Selector */}
-              <div className="flex items-center mt-3">
+              <div className="flex justify-between items-center">
                 <button
-                  className="px-2 py-1 bg-gray-200 text-gray-600 rounded-l"
-                  onClick={() => handleDecrement(order.id)} 
+                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => handleDecrement(order.id)}
                 >
                   -
                 </button>
-                <div className="px-3 py-1 border border-gray-200 text-gray-800">{quantities[order.id]}</div>
+                <span className="text-lg font-bold">{quantities[order.id]}</span>
                 <button
-                  className="px-2 py-1 bg-gray-200 text-gray-600 rounded-r"
-                  onClick={() => handleIncrement(order.id)} 
+                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => handleIncrement(order.id)}
                 >
                   +
                 </button>
                 <button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleBuy(order.id); 
-                  }}
-                  className="ml-auto px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:scale-105"
+                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded ml-4"
+                  onClick={() => handleBuy(order.id)}
                 >
                   Buy
                 </button>
@@ -172,17 +194,29 @@ const Shop = () => {
           </div>
         ))}
       </section>
-
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)} 
-        onConfirm={confirmOrder} 
-        orderId={selectedOrderId}
-        quantity={selectedQuantity}
-      />
+      {isModalOpen && (
+        <div
+          className="fixed top-0 left-0 w-full h-screen bg-black bg-opacity-50 flex justify-center items-center"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-4 w-1/2 h-1/2 flex flex-col justify-center items-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-lg font-bold mb-4">Confirm Order</h2>
+            <p className="text-lg mb-4">Order #${selectedOrderId}</p>
+            <p className="text-lg mb-4">Quantity: {selectedQuantity}</p>
+            <button
+              className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+              onClick={confirmOrder}
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default Shop;
-export { orders };
