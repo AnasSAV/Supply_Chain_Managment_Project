@@ -1,5 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'; 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'; 
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Orders from '../pages/Manager/Orders'; 
 import Customers from '../pages/Manager/Customers'; 
 import OrderMap from '../components/OrderMap';
