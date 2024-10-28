@@ -241,7 +241,7 @@ const ManagerDashboard = () => {
         </div>
 
         <div className="mb-10">
-          <h3 className="mx-6 mb-3 text-xs text-gray-300 uppercase tracking-widest">Admin</h3>
+          <h3 className="mx-6 mb-3 text-xs text-gray-300 uppercase tracking-widest">Manager</h3>
           <Link
             to="/manager"
             className={`flex items-center px-6 py-3 rounded-lg transition-all duration-200 ${
