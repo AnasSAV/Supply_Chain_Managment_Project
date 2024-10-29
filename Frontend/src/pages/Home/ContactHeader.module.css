@@ -4,6 +4,7 @@
   padding-right: 0px; /* Add 20px padding on the left */
 }
   .contact_section h1 {
+    margin-top: 40px;
     font-size: 48px;
     font-weight: 800;
     max-width: 80%;

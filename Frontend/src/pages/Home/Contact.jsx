@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Contact.css'; // Ensure this path is correct
+import './Contact.css'; 
 import ContactHeader from './ContactHeader'; // Adjust the path if necessary
 import contactImage from '../../data/contact.svg'; // Adjust the path to your image
 

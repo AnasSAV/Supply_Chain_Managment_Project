@@ -24,65 +24,62 @@ function Home() {
     };
   }, []); // Empty dependency array ensures this runs once on mount
 
-    return (
-        <div className="home font-roboto">
+  return (
+    <div className="home font-roboto">
         <section class="w-full px-8 text-gray-700 bg-white">
-        <div class="container flex flex-col flex-wrap items-center justify-between py-5 mx-auto md:flex-row max-w-7xl">
-            <div class="relative flex flex-col md:flex-row items-center">
-            <a href="#_" class="flex items-center mb-5 font-medium text-gray-900 lg:w-auto lg:items-center lg:justify-center md:mb-0">
+            <div class="container flex flex-col flex-wrap items-center justify-between py-5 mx-auto md:flex-row max-w-7xl">
+                <div class="relative flex flex-col md:flex-row items-center">
+                    <a href="#_" class="flex items-center mb-5 font-medium text-gray-900 lg:w-auto lg:items-center lg:justify-center md:mb-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 50 50" fill='#00000'>
+                            <path d="M36,4H14C8.477,4,4,8.477,4,14v22c0,5.523,4.477,10,10,10h22c5.523,0,10-4.477,10-10V14C46,8.477,41.523,4,36,4z M14.869,39.252c-0.84-0.587-6.333-4.256-6.333-4.256l4.116-5.04l2.559,1.827c0.951,1.536,2.298,3.699,2.931,4.649 c0.632,0.948,0.931,2.78,0.985,3.346l0.073,0.759C17.964,40.778,16.399,40.312,14.869,39.252z M24.664,35.752L20.8,39.616 c0,0-0.252-2.605-1.26-4.116c-1.008-1.511-3.948-6.3-3.948-6.3c-1.26-2.016-1.428-4.032-0.42-5.04l3.36-3.36 c0,0,0.756,1.848,1.764,3.528c1.092,1.764,3.948,6.384,3.948,6.384C25.504,32.728,25.672,34.744,24.664,35.752z M25.927,28.78 c0,0-0.569-0.307-1.357-0.736c-0.925-1.496-2.196-3.552-2.846-4.601c-0.914-1.524-1.63-3.263-1.638-3.28l-0.148-0.36 c1.026-0.236,2.423,0.327,3.972,1.295c0.03,0,0.54,0.283,1.242,0.685c0.953,1.541,2.34,3.768,2.985,4.737 c0.854,1.353,1.473,3.258,1.478,3.277l0.07,0.218C28.621,30.104,27.258,29.668,25.927,28.78z M34.66,25.84l-3.444,3.444 c0,0-0.673-2.1-1.68-3.695c-1.008-1.512-3.948-6.3-3.948-6.3c-1.26-2.016-1.428-4.032-0.42-5.04l3.864-3.864 c0,0,0.252,2.352,1.26,4.032C31.384,16.18,34.24,20.8,34.24,20.8C35.5,22.816,35.668,24.832,34.66,25.84z M37.516,19.96 l-3.213-2.252l-2.583-4.176c-0.65-1.085-0.957-2.773-1.018-3.33l-0.114-1.029c1.244-0.44,2.973-0.004,4.656,1.291 c0.84,0.589,6.388,4.456,6.388,4.456L37.516,19.96z"></path>
+                        </svg>   
+                    </a>
+                    
+                    <nav class="flex flex-wrap items-center mb-5 text-base md:mb-0 md:pl-8 md:ml-8 md:border-l md:border-gray-200 no-underline">
+                        <a href="#_" class="mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 no-underline">Home</a>
+                        <a href="/shop" class="mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 no-underline">Shop</a>
+                        <a href="/contact" class="mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 no-underline">Contact Us</a>
+                    </nav>
+                </div>
 
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mr-2" viewBox="0 0 30 30" fill="#000000">
-                <path d="M20.752 10.993c0-.17-.05-.33-.13-.48l-2.77-5.02c-.46-.91-1.37-1.48-2.4-1.5-1.04-.02-1.98.54-2.44 1.4l-3.04 5.09c-.1.15-.15.33-.15.51h2.19 7H20.752zM14.752 6.373c.19-.35.53-.38.67-.38.13 0 .47.05.64.4.01.01.02.03.03.04l1.41 2.56h-4.31L14.752 6.373zM27.192 22.763l-1.54-2.77h-21.1l-1.62 2.71c-.8 1.5.31 3.29 2.04 3.29h20.14C26.812 25.993 27.922 24.263 27.192 22.763zM5.752 17.993L24.552 17.993 21.782 12.993 8.742 12.993z"></path>
-                </svg>
-                {/* <span class="text-xl font-black leading-none text-gray-900 select-none">Company</span> */}
-            </a>
-            
-            <nav class="flex flex-wrap items-center mb-5 text-base md:mb-0 md:pl-8 md:ml-8 md:border-l md:border-gray-200 no-underline">
-                <a href="#_" class="mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 no-underline">Home</a>
-                <a href="/shop" class="mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 no-underline">Shop</a>
-                <a href="/contact" class="mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 no-underline">Contact Us</a>
-
-            </nav>
+                <div class="inline-flex items-center ml-5 space-x-6 lg:justify-end mt-14 mb-4"> {/* reduced mb-10 to mb-4 */}
+                    <a href="/login" class="no-underline inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-white whitespace-no-wrap bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600">
+                        Login
+                    </a>
+                </div>
             </div>
-
-            <div class="inline-flex items-center ml-5 space-x-6 lg:justify-end">
-            <a href="/login" class="no-underline inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-white whitespace-no-wrap bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600">
-                Login
-            </a>
-            </div>
-        </div>
         </section>
 
-
-        <section class="px-2 py-32 bg-white md:px-0">
+        <section class="px-2 py-6 bg-white md:px-0"> {/* reduced py-32 to py-24 */}
             <div class="container items-center max-w-6xl px-8 mx-auto xl:px-5">
                 <div class="flex flex-wrap items-center sm:-mx-3">
-                <div class="w-full md:w-1/2 md:px-3">
-                    <div class="w-full pb-6 space-y-6 sm:max-w-md lg:max-w-lg md:space-y-4 lg:space-y-8 xl:space-y-9 sm:pr-5 lg:pr-0 md:pb-0">
-                    <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-4xl lg:text-5xl xl:text-6xl">
-                        <span class="block xl:inline">We make your work</span>
-                        <span class="block text-indigo-600 xl:inline"> Easier And Faster.</span>
-                    </h1>
-                    <p class="mx-auto text-base text-gray-500 sm:max-w-md lg:text-xl md:max-w-3xl">CompanyA finetune your supply chain processes and provide support where needed.</p>
-                    <div class="relative flex flex-col sm:flex-row sm:space-x-4">
-                        <a href="#_" class=" no-underline flex items-center w-full px-6 py-3 mb-3 text-lg text-white bg-indigo-600 rounded-md sm:mb-0 hover:bg-indigo-700 sm:w-auto">
-                        Try It Free
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                        </a>
-                        <a href="#_" class=" no-underline flex items-center w-full px-6 py-3 mb-3 text-lg text-black rounded-md sm:mb-0 sm:w-auto hover:bg-gray-200 hover:text-gray-600">
-                        Learn More
-                        </a>
+                    <div class="w-full md:w-1/2 md:px-3">
+                        <div class="w-full pb-6 space-y-6 sm:max-w-md lg:max-w-lg md:space-y-4 lg:space-y-8 xl:space-y-9 sm:pr-5 lg:pr-0 md:pb-0">
+                            <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl md:text-4xl lg:text-5xl xl:text-6xl">
+                                <span class="block xl:inline">We make your work</span>
+                                <span class="block text-indigo-600 xl:inline"> Easier And Faster.</span>
+                            </h1>
+                            <p class="mx-auto text-base text-gray-500 sm:max-w-md lg:text-xl md:max-w-3xl">CompanyA finetune your supply chain processes and provide support where needed.</p>
+                            <div class="relative flex flex-col sm:flex-row sm:space-x-4">
+                                <a href="#_" class=" no-underline flex items-center w-full px-6 py-3 mb-3 text-lg text-white bg-indigo-600 rounded-md sm:mb-0 hover:bg-indigo-700 sm:w-auto">
+                                    Try It Free
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                </a>
+                                <a href="#_" class=" no-underline flex items-center w-full px-6 py-3 mb-3 text-lg text-black rounded-md sm:mb-0 sm:w-auto hover:bg-gray-200 hover:text-gray-600">
+                                    Learn More
+                                </a>
+                            </div>
+                        </div>
                     </div>
+                    <div class="w-full md:w-1/2 mb-10">
+                        <div class="w-full h-auto overflow-hidden rounded-md shadow-xl sm:rounded-xl">
+                            <img src={Image01} alt="Image01" /> 
+                        </div>  
                     </div>
-                </div>
-                <div class="w-full md:w-1/2">
-                    <div class="w-full h-auto overflow-hidden rounded-md shadow-xl sm:rounded-xl">
-                    <img src={Image01} alt="Image01" /> 
-                    </div>  
-                </div>
                 </div>
             </div>
         </section>
+
 
 
         <section class="w-full bg-white pt-7 pb-7 md:pt-20 md:pb-24">
@@ -94,22 +91,37 @@ function Home() {
                 </div>
 
                 <div class="box-border order-first w-full text-black border-solid md:w-1/2 md:pl-10 md:order-none">
-                    <h2 class="m-0 text-xl font-semibold leading-tight border-0 border-gray-300 lg:text-3xl md:text-2xl">
-                        Boost Productivity
+                    <h2 class="m-0 text-xl font-semibold leading-tight border-0 border-gray-300 lg:text-3xl md:text-2xl mb-2">
+                        What We Do
                     </h2>
-                    <p class="pt-4 pb-8 m-0 leading-7 text-gray-700 border-0 border-gray-300 sm:pr-12 xl:pr-32 lg:text-lg">
+                    {/* <p class="pt-4 pb-8 m-0 leading-7 text-gray-700 border-0 border-gray-300 sm:pr-12 xl:pr-32 lg:text-lg">
                         Increase the productivity in your organization and your company culture.
-                    </p>
+                    </p> */}
+                    <div class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
+                        Our creative and product development teams have the capability to create and deliver virtually anything that could be used to communicate with your employees.
+                    </div>
+                    <h2 class="m-0 text-xl font-semibold leading-tight border-0 border-gray-300 lg:text-3xl md:text-2xl mt-4 mb-2">
+                        Our Focus
+                    </h2>
                     <ul class="p-0 m-0 leading-6 border-0 border-gray-300">
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
-                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Maximize productivity and growth
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Process optimization.
                         </li>
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Production.
+                        </li>
+                        <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Inventory.
+                        </li>
+                        <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Planning.
+                        </li>
+                        {/* <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
                             <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Speed past your competition
                         </li>
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
                             <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Learn the top techniques
-                        </li>
+                        </li> */}
                     </ul>
                 </div>
             </div>
@@ -117,10 +129,10 @@ function Home() {
 
                 <div class="box-border w-full text-black border-solid md:w-1/2 md:pl-6 xl:pl-32">
                     <h2 class="m-0 text-xl font-semibold leading-tight border-0 border-gray-300 lg:text-3xl md:text-2xl">
-                        Automated Tasks
+                    Digital Transformation
                     </h2>
                     <p class="pt-4 pb-8 m-0 leading-7 text-gray-700 border-0 border-gray-300 sm:pr-10 lg:text-lg">
-                        Save time and money with our revolutionary services. We are the leaders in the industry.
+                    Speeding digitalisation lowers costs, streamlines operations, and enhances transparency
                     </p>
                     <ul class="p-0 m-0 leading-6 border-0 border-gray-300">
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
