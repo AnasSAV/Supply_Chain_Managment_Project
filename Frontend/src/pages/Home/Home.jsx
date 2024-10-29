@@ -59,7 +59,7 @@ function Home() {
                                 <span class="block xl:inline">We make your work</span>
                                 <span class="block text-indigo-600 xl:inline"> Easier And Faster.</span>
                             </h1>
-                            <p class="mx-auto text-base text-gray-500 sm:max-w-md lg:text-xl md:max-w-3xl">CompanyA finetune your supply chain processes and provide support where needed.</p>
+                            <p class="mx-auto text-base text-gray-500 sm:max-w-md lg:text-xl md:max-w-3xl">We finetune your supply chain processes and provide support where needed.</p>
                             <div class="relative flex flex-col sm:flex-row sm:space-x-4">
                                 <a href="#_" class=" no-underline flex items-center w-full px-6 py-3 mb-3 text-lg text-white bg-indigo-600 rounded-md sm:mb-0 hover:bg-indigo-700 sm:w-auto">
                                     Try It Free
