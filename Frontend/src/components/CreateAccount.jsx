@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaUser, FaLock, FaEnvelope, FaPhone, FaAddressCard } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const CreateAccount = () => {
   const [name, setName] = useState('');
@@ -18,7 +19,7 @@ const CreateAccount = () => {
     setCaptcha(randomCaptcha);
   };
 
-  const handleCreateAccount = () => {
+  const handleCreateAccount = async () => {
     if (password !== confirmPassword) {
       alert('Passwords do not match!');
       return;
@@ -27,7 +28,26 @@ const CreateAccount = () => {
       alert('Incorrect CAPTCHA!');
       return;
     }
-    alert('Account created!');
+
+    try {
+      const response = await axios.post('http://localhost:3000/api/customers/register', {
+        email: email,
+        password: password,
+        name: name,
+        contact_number: phone,
+        delivery_address: address
+      });
+
+      alert('Account created successfully!');
+      navigate('/login');
+    } catch (error) {
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Failed to create account. Please try again.');
+      }
+      console.error('Registration error:', error);
+    }
   };
 
   React.useEffect(() => {
