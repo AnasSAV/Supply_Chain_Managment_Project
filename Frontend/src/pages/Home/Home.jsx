@@ -72,7 +72,7 @@ function Home() {
                         </div>
                     </div>
                     <div class="w-full md:w-1/2 mb-10">
-                        <div class="w-full h-auto overflow-hidden rounded-md shadow-xl sm:rounded-xl">
+                        <div class="w-full h-auto overflow-hidden rounded-md sm:rounded-xl" style={{ marginBottom: '-10px', marginTop: '0px' }}>
                             <img src={Image01} alt="Image01" /> 
                         </div>  
                     </div>
@@ -86,8 +86,8 @@ function Home() {
             <div class="box-border flex flex-col items-center content-center px-8 mx-auto leading-6 text-black border-0 border-gray-300 border-solid md:flex-row max-w-7xl lg:px-16">
 
             
-                <div class="box-border relative w-full max-w-md px-4 mt-5 mb-4 -ml-5 text-center bg-no-repeat bg-contain border-solid md:ml-0 md:mt-0 md:max-w-none lg:mb-0 md:w-1/2 xl:pl-10">
-                    <img src="https://cdn.devdojo.com/images/december2020/productivity.png" class="p-2 pl-6 pr-5 xl:pl-16 xl:pr-20 "/>
+                <div class="box-border relative w-full max-w-md px-4 mt-3 mb-4 -ml-5 text-center bg-no-repeat bg-contain border-solid md:ml-0 md:mt-0 md:max-w-none lg:mb-0 md:w-1/2 xl:pl-10">
+                    <img src="https://img.freepik.com/free-vector/worldwide-shipping-service-international-distribution-collaborative-logistics-supply-chain-partners-freight-cost-optimization-concept-pinkish-coral-bluevector-isolated-illustration_335657-1757.jpg?t=st=1730230571~exp=1730234171~hmac=b70bd4e3e6f4e04ca1f8a2b1ac6e621373a9d5a6a848fccb0edc4b7b37596eda&w=2000" class="p-2 pl-6 pr-5 xl:pl-16 xl:pr-20 "/>
                 </div>
 
                 <div class="box-border order-first w-full text-black border-solid md:w-1/2 md:pl-10 md:order-none">
@@ -105,16 +105,16 @@ function Home() {
                     </h2>
                     <ul class="p-0 m-0 leading-6 border-0 border-gray-300">
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
-                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Process optimization.
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-indigo-500 rounded-full"><span class="text-sm font-bold">✓</span></span> Process optimization.
                         </li>
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
-                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Production.
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-indigo-500 rounded-full"><span class="text-sm font-bold">✓</span></span> Production.
                         </li>
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
-                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Inventory.
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-indigo-500 rounded-full"><span class="text-sm font-bold">✓</span></span> Inventory.
                         </li>
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
-                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Planning.
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-indigo-500 rounded-full"><span class="text-sm font-bold">✓</span></span> Planning.
                         </li>
                         {/* <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
                             <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Speed past your competition
@@ -127,29 +127,29 @@ function Home() {
             </div>
             <div class="box-border flex flex-col items-center content-center px-8 mx-auto mt-2 leading-6 text-black border-0 border-gray-300 border-solid md:mt-20 xl:mt-0 md:flex-row max-w-7xl lg:px-16">
 
-                <div class="box-border w-full text-black border-solid md:w-1/2 md:pl-6 xl:pl-32">
+                <div class="box-border w-full text-black border-solid md:w-1/2 md:pl-6 xl:pl-32 mt-40">
                     <h2 class="m-0 text-xl font-semibold leading-tight border-0 border-gray-300 lg:text-3xl md:text-2xl">
                     Digital Transformation
                     </h2>
                     <p class="pt-4 pb-8 m-0 leading-7 text-gray-700 border-0 border-gray-300 sm:pr-10 lg:text-lg">
-                    Speeding digitalisation lowers costs, streamlines operations, and enhances transparency
+                    Speeding digitalisation lowers costs and streamlines operations
                     </p>
                     <ul class="p-0 m-0 leading-6 border-0 border-gray-300">
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
-                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Automated task management workflow
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-pink-600 rounded-full"><span class="text-sm font-bold">✓</span></span> Automated task management workflow
                         </li>
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
-                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Detailed analytics for your data
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-pink-600 rounded-full"><span class="text-sm font-bold">✓</span></span> Detailed analytics for your data
                         </li>
                         <li class="box-border relative py-1 pl-0 text-left text-gray-500 border-solid">
-                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-yellow-300 rounded-full"><span class="text-sm font-bold">✓</span></span> Some awesome integrations
+                            <span class="inline-flex items-center justify-center w-6 h-6 mr-2 text-white bg-pink-600 rounded-full"><span class="text-sm font-bold">✓</span></span> Enhanced transparency
                         </li>
                     </ul>
                 </div>
 
 
-                <div class="box-border relative w-full max-w-md px-4 mt-10 mb-4 text-center bg-no-repeat bg-contain border-solid md:mt-0 md:max-w-none lg:mb-0 md:w-1/2">
-                    <img src="https://cdn.devdojo.com/images/december2020/settings.png" class="pl-4 sm:pr-10 xl:pl-10 lg:pr-32"/>
+                <div class="box-border relative w-full max-w-md px-4 mt-20 mb-2 text-center bg-no-repeat bg-contain border-solid md:mt-0 md:max-w-none lg:mb-0 md:w-1/2" style={{ marginTop: '100px' }}>
+                    <img src="https://img.freepik.com/free-vector/handling-order-processing-illustration_335657-517.jpg?t=st=1730231386~exp=1730234986~hmac=f2baa7fa819f891d7062986961e544bb338bcf14ab2b89ddbdcf21c7d3908b2e&w=1380" class="pl-4 sm:pr-10 xl:pl-10 lg:pr-32"/>
                 </div>
             </div>
         </section>
@@ -161,7 +161,7 @@ function Home() {
                     <div class="order-1 w-full px-3 lg:w-1/2 lg:order-0">
                         <div class="w-full lg:max-w-md">
                             <h2 class="mb-4 text-3xl font-bold leading-tight tracking-tight sm:text-4xl font-heading">100% Customer Satisfaction</h2>
-                                <p class="mb-4 font-medium tracking-tight text-gray-400 xl:mb-6">Our Aim is to Ensure your orders with the following:</p>
+                                <p class="mb-4 font-medium tracking-tight text-gray-400 xl:mb-6">More benefits for you from our service with:</p>
                                 <ul>
                                     <li class="flex items-center py-2 space-x-4 xl:py-3">
                                     <svg class="w-8 h-8 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
