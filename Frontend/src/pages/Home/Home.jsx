@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-// import Image01 from '.../data/diagram-of-supply-chain-management-vector-41707175.jpg';
+import Image01 from '../../data/frontPageImage.png';
 // import Image02 from '../data/scm-overview.png';
 // import Image03 from '../data/diagram-of-supply-chain-management-vector-41707175.jpg';
 // import Image04 from '../data/guarantee-100-percent-label-sign-for-banner-vector-40973993.jpg';
@@ -63,22 +63,23 @@ function Home() {
                         <span class="block xl:inline">We make your work</span>
                         <span class="block text-indigo-600 xl:inline"> Easier And Faster.</span>
                     </h1>
-                    <p class="mx-auto text-base text-gray-500 sm:max-w-md lg:text-xl md:max-w-3xl">It's never been easier to build beautiful websites that convey your message and tell your story.</p>
+                    <p class="mx-auto text-base text-gray-500 sm:max-w-md lg:text-xl md:max-w-3xl">CompanyA finetune your supply chain processes and provide support where needed.</p>
                     <div class="relative flex flex-col sm:flex-row sm:space-x-4">
                         <a href="#_" class=" no-underline flex items-center w-full px-6 py-3 mb-3 text-lg text-white bg-indigo-600 rounded-md sm:mb-0 hover:bg-indigo-700 sm:w-auto">
                         Try It Free
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 ml-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                         </a>
-                        <a href="#_" class="no-underline flex items-center px-6 py-3 text-gray-500 bg-gray-100 rounded-md hover:bg-gray-200 hover:text-gray-600">
+                        <a href="#_" class=" no-underline flex items-center w-full px-6 py-3 mb-3 text-lg text-black rounded-md sm:mb-0 sm:w-auto hover:bg-gray-200 hover:text-gray-600">
                         Learn More
                         </a>
                     </div>
                     </div>
                 </div>
-                {/* <div class="w-full md:w-1/2">
+                <div class="w-full md:w-1/2">
                     <div class="w-full h-auto overflow-hidden rounded-md shadow-xl sm:rounded-xl">
-                    <img src={Image01} alt="Image01" />                    </div>
-                </div> */}
+                    <img src={Image01} alt="Image01" /> 
+                    </div>  
+                </div>
                 </div>
             </div>
         </section>
@@ -142,7 +143,7 @@ function Home() {
         </section>
 
 
-        <section class="py-20 bg-gray-50">
+        <section class="py-20 bg-gray-10">
             <div class="container items-center max-w-6xl px-4  mx-auto sm:px-20 md:px-32 lg:px-16">
                 <div class="flex flex-wrap items-center -mx-3">
                     <div class="order-1 w-full px-3 lg:w-1/2 lg:order-0">
@@ -166,9 +167,9 @@ function Home() {
                         </div>
                     </div>
                 
-                    {/* <div class="w-full px-3 mb-12 lg:w-1/2 order-0 lg:order-1 lg:mb-0">
-                        <img class="mx-auto sm:max-w-sm lg:max-w-full" src={Image04} alt="Image04"/>
-                    </div> */}
+                    <div class="w-full px-3 mb-12 lg:w-1/2 order-0 lg:order-1 lg:mb-0">
+                        <img class="mx-auto sm:max-w-sm lg:max-w-full" src="https://img.freepik.com/free-vector/logistics-industry-freight-profit-analyzing-supply-chain-analytics-transportation-providers-data-transportation-costs-optimization-concept-pinkish-coral-bluevector-isolated-illustration_335657-1759.jpg?t=st=1730203786~exp=1730207386~hmac=c3e09225552c1e0b4ed24bf3d965c5820c7ccce7cbe314aba7354f732ed59e03&w=2000" alt="Image04"/>
+                    </div>
                 </div>
             </div>
         </section>

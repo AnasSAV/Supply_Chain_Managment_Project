@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 
 const HomeShop = ({ products = [] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,6 +58,30 @@ const HomeShop = ({ products = [] }) => {
 
   return (
     <div className="p-6">
+      {/* Navigation Section */}
+      <section className="w-full px-8 text-gray-700 bg-white mb-6">
+        <div className="container flex flex-col flex-wrap items-center justify-between py-5 mx-auto md:flex-row max-w-7xl">
+          <div className="relative flex flex-col md:flex-row items-center">
+          <a href="/" className="flex items-center mb-5 font-medium text-gray-900 lg:w-auto lg:items-center lg:justify-center md :mb-0">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 mr-2" viewBox="0 0 30 30" fill="#000000">
+                <path d="M20.752 10.993c0-.17-.05-.33-.13-.48l-2.77-5.02c-.46-.91-1.37-1.48-2.4-1.5-1.04-.02-1.98.54-2.44 1.4l-3.04 5.09c-.1.15-.15.33-.15.51h2.19 7H20.752zM14.752 6.373c.19-.35.53-.38.67-.38.13 0 .47.05.64.4.01.01.02.03.03.04l1.41 2.56h-4.31L14.752 6.373zM27.192 22.763l-1.54-2.77h-21.1l-1.62 2.71c-.8 1.5.31 3.29 2.04 3.29h20.14C26.812 25.993 27.922 24.263 27.192 22.763zM5.752 17.993L24.552 17.993 21.782 12.993 8.742 12.993z"></path>
+              </svg>
+            </a>
+            <nav className="flex flex-wrap items-center mb-5 text-base md:mb-0 md:pl-8 md:ml-8 md:border-l md:border-gray-200 no-underline">
+              <Link to="/" className="mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 no-underline">Home</Link>
+              <Link to="/shop" className="mr-5 font-medium leading-6 text -gray-600 hover:text-gray-900 no-underline">Shop</Link>
+              <Link to="/contact" className="mr-5 font-medium leading-6 text-gray-600 hover:text-gray-900 no-underline">Contact Us</Link>
+            </nav>
+            </div>
+
+            <div className="inline-flex items-center ml-5 space-x-6 lg:justify-end">
+              <Link to="/login" className="no-underline inline-flex items-center justify-center px-4 py-2 text-base font-medium leading-6 text-white whitespace-no-wrap bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600">
+                Login
+              </Link>
+            </div>
+        </div>
+      </section>
+
       <h1 className="text-5xl font-bold text-center mt-8 mb-4">Available Items</h1>
       {/* <div className="flex justify-center"></div> */}
       {/* Carousel Section */}
@@ -140,7 +165,7 @@ const HomeShop = ({ products = [] }) => {
                   >
                     <path
                       fillRule="evenodd"
-                      d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z"
+                      d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8 a.5.5 0 0 1 .5-.5z"
                     />
                     <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
                   </svg>
