@@ -80,8 +80,8 @@ const Analytics = () => {
 
       {/* Download Report Button */}
       <button
-        onClick={downloadReport}
-        className="mt-6 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition duration-300 ease-in-out"
+        // onClick={}
+        className="mt-6 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition duration-300 ease-in-out cursor-pointer"
       >
         Download Report
       </button>
