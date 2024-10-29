@@ -297,3 +297,41 @@ exports.getTrucksByBranch = async (req, res) => {
     res.status(500).json({ message: 'Server error.', error: error.message });
   }
 };
+
+exports.getTruckTripsByBranchNotComplete = async (req, res) => {
+  const { branch_id } = req.body;
+
+  // Input Validation
+  if (!branch_id) {
+    return res.status(400).json({ message: 'branch_id is required.' });
+  }
+
+  try {
+    const [results] = await pool.query('CALL Get_Today_And_Future_Truck_Trips_By_Branch(?)', [branch_id]);
+    
+    // Since the stored procedure returns a result set, we send the first element
+    res.status(200).json(results[0]);
+  } catch (error) {
+    console.error('Error fetching incomplete truck trips:', error);
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+};
+
+exports.getOrdersToBeDistributedByBranch = async (req, res) => {
+  const { branch_id } = req.body;
+
+  // Input Validation
+  if (!branch_id) {
+    return res.status(400).json({ message: 'branch_id is required.' });
+  }
+
+  try {
+    const [results] = await pool.query('CALL Get_Orders_to_be_distributed_By_Branch(?)', [branch_id]);
+    
+    // Since the stored procedure returns a result set, we send the first element
+    res.status(200).json(results[0]);
+  } catch (error) {
+    console.error('Error fetching orders to be distributed:', error);
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+};

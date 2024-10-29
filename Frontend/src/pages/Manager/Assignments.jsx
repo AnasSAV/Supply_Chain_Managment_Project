@@ -54,6 +54,12 @@ const AssignmentPage = () => {
   const [trucks, setTrucks] = useState([]);
   const { user } = useContext(AuthContext);
 
+  // Add state for incomplete truck trips
+  const [incompleteTruckTrips, setIncompleteTruckTrips] = useState([]);
+
+  // Add state for orders to be distributed
+  const [ordersToDistribute, setOrdersToDistribute] = useState([]);
+
   // Modify the fetchRoutes function to store both id and name
   const fetchRoutes = async () => {
     try {
@@ -171,38 +177,41 @@ const AssignmentPage = () => {
     setSelectedOrders([]);
   };
 
-  // Confirm order assignment modal
-  const handleAssignOrdersToTruck = () => {
-    if (selectedOrders.length === 0) {
-      alert('Please select at least one confirmed order.');
-      return;
-    }
+  // Update to handle single order assignment
+  const handleAssignOrderToTruck = (orderId) => {
     if (!selectedTruckTrip) {
-      alert('Please select a truck trip to assign orders.');
+      alert('Please select a truck trip first');
       return;
     }
-    setIsModalOpen(true); // Open confirmation modal
+    setSelectedOrders([orderId]);
+    setIsModalOpen(true);
   };
 
-  const confirmOrderAssignment = () => {
-    setTruckTrips((prevTrips) =>
-      prevTrips.map((trip) =>
-        trip.id === selectedTruckTrip
-          ? {
-            ...trip,
-            orders: [...trip.orders, ...selectedOrders.map((orderId) =>
-              orders.find((order) => order.id === orderId)
-            )]
+  const confirmOrderAssignment = async () => {
+    try {
+      const orderId = selectedOrders[0]; // We'll only have one order now
+      await axios.post(
+        'http://localhost:3000/api/truckTrips/insert-delivery',
+        {
+          order_id: orderId,
+          truck_trip_id: Number(selectedTruckTrip)  // Using Number() for explicit conversion
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
           }
-          : trip
-      )
-    );
-    setOrders((prevOrders) =>
-      prevOrders.filter((order) => !selectedOrders.includes(order.id))
-    );
-    setSelectedOrders([]);
-    setIsModalOpen(false); // Close modal
-    alert('Orders assigned to the selected truck trip successfully!');
+        }
+      );
+
+      fetchOrdersToDistribute();
+      setSelectedOrders([]);
+      setIsModalOpen(false);
+      alert('Order assigned successfully!');
+    } catch (error) {
+      console.error('Error assigning order:', error);
+      alert('Failed to assign order. Please try again.');
+    }
   };
 
   // Fetch initial orders
@@ -357,6 +366,63 @@ const AssignmentPage = () => {
     }
   }, [user.branch_id]);
 
+  // Add function to fetch incomplete truck trips
+  const fetchIncompleteTruckTrips = async () => {
+    try {
+      const response = await axios.post(
+        'http://localhost:3000/api/truckTrips/get-truck-trips-by-branch-not-complete',
+        {
+          branch_id: user.branch_id
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      console.log('Incomplete truck trips:', response.data);
+      setIncompleteTruckTrips(response.data);
+    } catch (error) {
+      console.error('Error fetching incomplete truck trips:', error);
+    }
+  };
+
+  // Add useEffect to fetch incomplete truck trips when component mounts
+  useEffect(() => {
+    if (user.branch_id) {
+      fetchIncompleteTruckTrips();
+    }
+  }, [user.branch_id]);
+
+  // Fetch orders to be distributed
+  const fetchOrdersToDistribute = async () => {
+    try {
+      const response = await axios.post(
+        'http://localhost:3000/api/truckTrips/get-orders-to-be-distributed-by-branch',
+        {
+          branch_id: user.branch_id
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+      setOrdersToDistribute(response.data);
+    } catch (error) {
+      console.error('Error fetching orders to distribute:', error);
+    }
+  };
+
+  // Call this when component mounts
+  useEffect(() => {
+    if (user.branch_id) {
+      fetchOrdersToDistribute();
+    }
+  }, [user.branch_id]);
+
   return (
     <div className="p-6 bg-gray-100 min-h-screen flex flex-col">
       <Modal
@@ -506,13 +572,14 @@ const AssignmentPage = () => {
           <div className="mb-4">
             <select
               value={selectedTruckTrip}
-              onChange={(e) => setSelectedTruckTrip(Number(e.target.value))}
+              onChange={(e) => setSelectedTruckTrip(e.target.value)}
+              onClick={() => fetchIncompleteTruckTrips()} // Refresh list when dropdown is clicked
               className="block appearance-none w-full border border-gray-300 rounded-lg p-3 pr-8 text-gray-700 focus:outline-none focus:ring focus:ring-purple-500"
             >
               <option value="">Select a Truck Trip</option>
-              {truckTrips.map((trip) => (
-                <option key={trip.id} value={trip.id}>
-                  Route: {trip.route}, Driver: {trip.driver}, Assistant: {trip.assistant}, Truck: {trip.truck}
+              {incompleteTruckTrips.map((trip) => (
+                <option key={trip.truck_trip_id} value={trip.truck_trip_id}>
+                  Trip ID: {trip.truck_trip_id}, Truck: {trip.truck_id}, Route: {trip.route_id}
                 </option>
               ))}
             </select>
@@ -524,29 +591,34 @@ const AssignmentPage = () => {
             Enable orders to assign them to a truck trip.
           </p>
           <div className="space-y-4">
-            {orders.map((order) => (
-              <div key={order.id} className="flex justify-between items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
-                <span className="text-gray-800">{order.description}</span>
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedOrders.includes(order.id)}
-                    onChange={() => handleSelectOrder(order.id)}
-                    className="hidden"
-                  />
-                  <div className={`w-10 h-5 flex items-center bg-gray-300 rounded-full p-1 transition duration-300 ease-in-out ${selectedOrders.includes(order.id) ? 'bg-green-500' : ''}`}>
-                    <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition duration-300 ease-in-out ${selectedOrders.includes(order.id) ? 'translate-x-5' : ''}`}></div>
-                  </div>
-                </label>
+            {ordersToDistribute.map((order) => (
+              <div 
+                key={order.order_id} 
+                className="flex justify-between items-center bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+              >
+                <div className="text-gray-800">
+                  <span className="font-semibold">Order ID: {order.order_id}</span>
+                  <span className="mx-2">|</span>
+                  <span>Product: {order.product_id}</span>
+                  <span className="mx-2">|</span>
+                  <span>Quantity: {order.quantity}</span>
+                  <span className="mx-2">|</span>
+                  <span>Capacity: {order.total_capacity}</span>
+                </div>
+                <button
+                  onClick={() => handleAssignOrderToTruck(order.order_id)}
+                  disabled={!selectedTruckTrip}
+                  className={`px-4 py-2 rounded-lg ${
+                    !selectedTruckTrip 
+                      ? 'bg-gray-300 cursor-not-allowed' 
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  } text-white transition-colors`}
+                >
+                  Assign to Trip
+                </button>
               </div>
             ))}
           </div>
-          <button
-            onClick={handleAssignOrdersToTruck}
-            className="px-6 py-3 mt-4 bg-gradient-to-r from-green-500 to-teal-600 text-white font-bold rounded-lg shadow-md hover:from-green-600 hover:to-teal-700 transition duration-300"
-          >
-            Assign Orders to Selected Truck Trip
-          </button>
 
           {/* Visualization of Truck Trips and Assigned Orders */}
           <h2 className="text-3xl font-bold mb-4 mt-6 text-teal-800">Truck Trips and Assigned Orders</h2>
@@ -559,25 +631,25 @@ const AssignmentPage = () => {
               </tr>
             </thead>
             <tbody>
-              {truckTrips.map((trip) => (
-                <tr key={trip.id} className="hover:bg-gray-100 transition duration-200">
+              {incompleteTruckTrips.map((trip) => (
+                <tr key={trip.truck_trip_id} className="hover:bg-gray-100 transition duration-200">
                   <td className="py-2 px-4 border-b text-gray-700">
-                    Route: {trip.route}, Driver: {trip.driver}, Assistant: {trip.assistant}, Truck: {trip.truck}
+                    Trip ID: {trip.truck_trip_id}, 
+                    Truck: {trip.truck_id}, 
+                    Driver: {trip.driver_id}, 
+                    Assistant: {trip.assistant_id}, 
+                    Route: {trip.route_id}
                   </td>
                   <td className="py-2 px-4 border-b text-gray-700">
-                    {trip.orders.length > 0 ? trip.orders.map((order) => order.description).join(', ') : 'No orders assigned'}
+                    {trip.orders ? trip.orders.join(', ') : 'No orders assigned'}
                   </td>
                   <td className="py-2 px-4 border-b text-gray-700 text-center">
-                    {trip.completed ? (
-                      <span className="text-green-600 font-semibold">Completed</span>
-                    ) : (
-                      <button
-                        onClick={() => handleCompleteTrip(trip.id)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
-                      >
-                        Mark as Completed
-                      </button>
-                    )}
+                    <button
+                      onClick={() => handleCompleteTrip(trip.truck_trip_id)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
+                    >
+                      Mark as Completed
+                    </button>
                   </td>
                 </tr>
               ))}
