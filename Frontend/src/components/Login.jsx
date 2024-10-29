@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { FaUser, FaLock } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Predefined users for login simulation
 const predefinedUsers = [
@@ -70,12 +72,15 @@ const Login = () => {
             navigate('/dashboard');
         }
       } else {
-        // Login failed
-        alert(data.message || 'Login failed. Please check your credentials.');
+        toast.error(data.message || 'Login failed. Please check your credentials.', {
+          position: 'top-center',
+        });
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('An error occurred during login. Please try again.');
+      toast.error('An error occurred during login. Please try again.', {
+        position: 'top-center',
+      });
     }
   };
 

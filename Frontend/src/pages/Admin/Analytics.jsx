@@ -1,5 +1,7 @@
-import React from 'react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import React, { useRef } from 'react';
+import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+// import jsPDF from 'jspdf';
+// import html2canvas from 'html2canvas';
 
 // Sample data for the graphs
 const salesData = [
@@ -22,8 +24,25 @@ const pieData = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const Analytics = () => {
+  const reportRef = useRef();
+
+  // Function to generate the PDF report
+  // const downloadReport = async () => {
+  //   const pdf = new jsPDF('p', 'mm', 'a4');
+  //   const pageWidth = pdf.internal.pageSize.getWidth();
+  //   const pageHeight = pdf.internal.pageSize.getHeight();
+
+  //   // Capture the report section as an image
+  //   const canvas = await html2canvas(reportRef.current, { scale: 2 });
+  //   const imgData = canvas.toDataURL('image/png');
+
+  //   // Add image to the PDF
+  //   pdf.addImage(imgData, 'PNG', 10, 10, pageWidth - 20, pageHeight - 20);
+  //   pdf.save('Analytics_Report.pdf');
+  // };
+
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6 space-y-8" ref={reportRef}>
       {/* Heading */}
       <h2 className="text-2xl font-bold mb-4">SCMS Analytics</h2>
 
@@ -43,21 +62,6 @@ const Analytics = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* Orders Bar Chart */}
-      <div className="bg-white p-4 shadow-md rounded-lg">
-        <h3 className="text-xl font-semibold mb-4">Orders Over Time</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={salesData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="orders" fill="#659BDF" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
       {/* Order Status Pie Chart */}
       <div className="bg-white p-4 shadow-md rounded-lg">
         <h3 className="text-xl font-semibold mb-4">Order Status Distribution</h3>
@@ -73,9 +77,18 @@ const Analytics = () => {
           </PieChart>
         </ResponsiveContainer>
       </div>
+
+      {/* Download Report Button */}
+      <button
+        onClick={downloadReport}
+        className="mt-6 bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition duration-300 ease-in-out"
+      >
+        Download Report
+      </button>
     </div>
   );
 };
 
 export default Analytics;
+
 
