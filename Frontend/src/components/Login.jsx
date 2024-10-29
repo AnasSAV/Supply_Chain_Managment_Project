@@ -109,14 +109,14 @@ const Login = () => {
       </div>
 
       {/* Login Form */}
-      <div className="relative z-10 bg-white bg-opacity-60 p-8 rounded-lg shadow-lg w-96 transition duration-300 ease-in-out transform hover:scale-105">
+      <div className="relative z-10 bg-white bg-opacity-20 p-8 rounded-lg shadow-lg w-96 transition duration-300 ease-in-out transform hover:scale-105">
         <h2 className="text-3xl font-bold text-center mb-2 text-gray-700">Login</h2>
         <p className="text-sm font-medium text-center mb-6 text-gray-400">Select Your Role and Login</p>
 
         {/* Role Dropdown */}
         <div className="mb-4 flex justify-end">
           <select
-            className="p-2 border border-gray-500 rounded-full focus:outline-none focus:ring-2 focus:ring-green-400 text-sm transition duration-300 ease-in-out"
+            className="p-2 border border-gray-500 bg-slate-100 rounded-full focus:outline-none focus:ring-2 focus:ring-green-400 text-sm transition duration-300 ease-in-out"
             onChange={(e) => setRole(e.target.value)}
             value={role}
           >
@@ -134,8 +134,8 @@ const Login = () => {
           <FaUser className="absolute left-3 top-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Username"
-            className="w-full pt-3 pb-3 pl-10 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-300 ease-in-out"
+            placeholder="Email"
+            className="w-full pt-3 pb-3 pl-10 border border-gray-300 bg-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-300 ease-in-out"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
@@ -147,7 +147,7 @@ const Login = () => {
           <input
             type="password"
             placeholder="Password"
-            className="w-full pt-3 pb-3 pl-10 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-300 ease-in-out"
+            className="w-full pt-3 pb-3 pl-10 border border-gray-300 bg-slate-100 rounded focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-300 ease-in-out"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -161,16 +161,17 @@ const Login = () => {
           Login
         </button>
 
-        {/* Create Account Link */}
-        <p className="text-center mt-4 text-gray-600">
-          Don't have an account?{' '}
-          <span 
-            className="text-blue-500 cursor-pointer hover:underline" 
-            onClick={() => navigate('/create-account')}
-          >
-            Create account
-          </span>
-        </p>
+        {role === 'Customer' && (
+          <p className="text-center mt-4 text-gray-600">
+            Don't have an account?{' '}
+            <span 
+              className="text-blue-500 cursor-pointer hover:underline" 
+              onClick={() => navigate('/create-account')}
+            >
+              Create account
+            </span>
+          </p>
+        )}
       </div>
     </div>
   );
