@@ -6,11 +6,7 @@ import trainImage from '../../data/TrainTable.jpg';
 toast.configure();
 
 const AssignOrdersToTrains = () => {
-  const [orders, setOrders] = useState([
-    { id: 'order-1', name: 'Order 1', destination: 'Location A', arrivalTime: '10:00 AM' },
-    { id: 'order-2', name: 'Order 2', destination: 'Location B', arrivalTime: '11:00 AM' },
-    { id: 'order-3', name: 'Order 3', destination: 'Location C', arrivalTime: '12:00 PM' },
-  ]);
+  const [orders, setOrders] = useState([]);
 
   const [trains, setTrains] = useState([]);
 
@@ -24,27 +20,64 @@ const AssignOrdersToTrains = () => {
 
   // Sample train data (with start/end times, capacity, and end station)
   const trainOptions = [
-    { id: 'T001'},
-    { id: 'T002' },
-    { id: 'T003'},
-    { id: 'T004'},
-    { id: 'T005'},
-    { id: 'T006'}
+    { id: 'T001', branch: 'B002' },
+    { id: 'T002', branch: 'B002' },
+    { id: 'T003', branch: 'B004' },
+    { id: 'T004', branch: 'B003' },
+    { id: 'T005', branch: 'B001' },
+    { id: 'T006', branch: 'B001' }
   ];
 
     const trainTable = [
-      { train_id: 'T001', start: '06:00:00', end: '10:00:00', capacity: 500, end_station: 'Galle' },
-      { train_id: 'T002', start: '12:00:00', end: '16:00:00', capacity: 400, end_station: 'Galle' },
-      { train_id: 'T003', start: '05:00:00', end: '11:00:00', capacity: 300, end_station: 'Hambanthota' },
-      { train_id: 'T004', start: '13:00:00', end: '19:00:00', capacity: 350, end_station: 'Jaffna' },
-      { train_id: 'T005', start: '07:00:00', end: '13:00:00', capacity: 450, end_station: 'Colombo' },
-      { train_id: 'T006', start: '14:00:00', end: '20:00:00', capacity: 550, end_station: 'Colombo' },
+      { train_id: 'T001', branch_id: 'B002', start: '06:00:00', end: '10:00:00', capacity: 500, end_station: 'Galle' },
+      { train_id: 'T002', branch_id: 'B002', start: '12:00:00', end: '16:00:00', capacity: 400, end_station: 'Galle' },
+      { train_id: 'T003', branch_id: 'B004', start: '05:00:00', end: '11:00:00', capacity: 300, end_station: 'Hambanthota' },
+      { train_id: 'T004', branch_id: 'B003', start: '13:00:00', end: '19:00:00', capacity: 350, end_station: 'Jaffna' },
+      { train_id: 'T005', branch_id: 'B001', start: '07:00:00', end: '13:00:00', capacity: 450, end_station: 'Colombo' },
+      { train_id: 'T006', branch_id: 'B001', start: '14:00:00', end: '20:00:00', capacity: 550, end_station: 'Colombo' },
     ];
 
-  // Handle opening modal for selecting orders
-  const openModal = (trainId) => {
-    setCurrentTrain(trainId);
-    setIsModalOpen(true);
+  // Update openModal function to use train details directly from trainTable
+  const openModal = async (trainId) => {
+    try {
+      const train = trains.find(t => t.id === trainId);
+      const trainDetails = trainTable.find(t => t.train_id === train.name);
+
+      if (!trainDetails) {
+        throw new Error('Train details not found');
+      }
+
+      const response = await fetch('http://localhost:3000/api/trainTrips/get-orders-by-train-and-branch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          train_id: trainDetails.train_id,
+          branch_id: trainDetails.branch_id
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+
+      const { data } = await response.json();
+      
+      const formattedOrders = data.map(order => ({
+        id: order.order_id,
+        name: `Order ${order.order_id}`,
+        destination: order.destination || 'N/A'
+      }));
+
+      setOrders(formattedOrders);
+      setCurrentTrain(trainDetails.train_id); // Store the actual train_id
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      toast.error('Failed to fetch orders for assignment');
+    }
   };
 
   // Handle closing modal
@@ -61,6 +94,13 @@ const AssignOrdersToTrains = () => {
     }
 
     try {
+      // Find the selected train details from trainTable
+      const selectedTrain = trainTable.find(train => train.train_id === newTrain.id);
+      
+      if (!selectedTrain) {
+        throw new Error('Train details not found');
+      }
+
       const response = await fetch('http://localhost:3000/api/trainTrips/create', {
         method: 'POST',
         headers: {
@@ -69,7 +109,8 @@ const AssignOrdersToTrains = () => {
         },
         body: JSON.stringify({
           train_id: newTrain.id,
-          date: newTrain.date
+          date: newTrain.date,
+          branch_id: selectedTrain.branch_id  // Now we have access to the branch_id
         })
       });
 
@@ -103,29 +144,52 @@ const AssignOrdersToTrains = () => {
   };
 
   // Handle assigning selected orders to train
-  const handleAssignOrders = () => {
+  const handleAssignOrders = async () => {
     if (selectedOrders.length === 0) {
       toast.warn('No orders selected.');
       return;
     }
 
-    const selectedOrderDetails = orders.filter((order) => selectedOrders.includes(order.id));
+    try {
+      const response = await fetch('http://localhost:3000/api/trainTrips/assign', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          train_id: currentTrain,
+          order_ids: selectedOrders
+        })
+      });
 
-    const updatedTrains = trains.map((train) => {
-      if (train.id === currentTrain) {
-        return {
-          ...train,
-          assignedOrders: [...train.assignedOrders, ...selectedOrderDetails],
-        };
+      if (!response.ok) {
+        throw new Error('Failed to assign orders');
       }
-      return train;
-    });
 
-    setTrains(updatedTrains);
-    setOrders(orders.filter((order) => !selectedOrders.includes(order.id)));
-    setSelectedOrders([]);
-    closeModal();
-    toast.success(`Orders assigned to ${trains.find((train) => train.id === currentTrain).name}`);
+      // Create order details from selected orders
+      const selectedOrderDetails = orders
+        .filter(order => selectedOrders.includes(order.id));
+
+      const updatedTrains = trains.map((train) => {
+        if (train.id === currentTrain) {
+          return {
+            ...train,
+            assignedOrders: [...train.assignedOrders, ...selectedOrderDetails],
+          };
+        }
+        return train;
+      });
+
+      setTrains(updatedTrains);
+      setOrders(orders.filter((order) => !selectedOrders.includes(order.id)));
+      setSelectedOrders([]);
+      closeModal();
+      toast.success('Orders assigned successfully');
+    } catch (error) {
+      console.error('Error assigning orders:', error);
+      toast.error('Failed to assign orders');
+    }
   };
 
   // Handle removing assigned orders (unassigning)
@@ -151,6 +215,68 @@ const AssignOrdersToTrains = () => {
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
+  };
+
+  // Update the Modal JSX to show loading state and handle empty orders
+  const renderOrderAssignmentModal = () => {
+    if (!isModalOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+        <div className="bg-white rounded-lg p-6 w-96">
+          <h3 className="text-lg font-bold mb-4">Select Orders to Assign</h3>
+          {orders.length > 0 ? (
+            <>
+              <ul className="mb-4 max-h-60 overflow-y-auto">
+                {orders.map((order) => (
+                  <li key={order.id} className="flex items-center justify-between p-2 hover:bg-gray-50">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selectedOrders.includes(order.id)}
+                        onChange={(e) =>
+                          setSelectedOrders((prev) =>
+                            e.target.checked
+                              ? [...prev, order.id]
+                              : prev.filter((id) => id !== order.id)
+                          )
+                        }
+                        className="form-checkbox h-4 w-4 text-blue-500"
+                      />
+                      <span>{order.name} ({order.destination})</span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={closeModal}
+                  className="bg-red-400 text-white px-4 py-2 rounded shadow hover:bg-red-500"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAssignOrders}
+                  className="bg-green-400 text-white px-4 py-2 rounded shadow hover:bg-green-500"
+                >
+                  Assign
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-4">
+              <p className="text-gray-600">No orders available for assignment</p>
+              <button
+                onClick={closeModal}
+                className="mt-4 bg-gray-400 text-white px-4 py-2 rounded shadow hover:bg-gray-500"
+              >
+                Close
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -366,48 +492,8 @@ const AssignOrdersToTrains = () => {
             </table>
           </div>
 
-          {/* Modal for Assigning Orders */}
-          {isModalOpen && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-              <div className="bg-white rounded-lg p-6 w-96">
-                <h3 className="text-lg font-bold mb-4">Select Orders to Assign</h3>
-                <ul className="mb-4">
-                  {orders.map((order) => (
-                    <li key={order.id} className="flex items-center justify-between">
-                      <label>
-                        <input
-                          type="checkbox"
-                          checked={selectedOrders.includes(order.id)}
-                          onChange={(e) =>
-                            setSelectedOrders((prev) =>
-                              e.target.checked
-                                ? [...prev, order.id]
-                                : prev.filter((id) => id !== order.id)
-                            )
-                          }
-                        />
-                        <span className="ml-2">{order.name} ({order.destination})</span>
-                      </label>
-                    </li>
-                  ))}
-                </ul>
-                <div className="flex justify-end space-x-2">
-                  <button
-                    onClick={closeModal}
-                    className="bg-red-400 text-white px-4 py-2 rounded shadow hover:bg-red-500"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAssignOrders}
-                    className="bg-green-400 text-white px-4 py-2 rounded shadow hover:bg-green-500"
-                  >
-                    Assign
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Replace the existing modal with the new one */}
+          {renderOrderAssignmentModal()}
         </div>
       )}
     </div>
@@ -415,6 +501,11 @@ const AssignOrdersToTrains = () => {
 };
 
 export default AssignOrdersToTrains;
+
+
+
+
+
 
 
 

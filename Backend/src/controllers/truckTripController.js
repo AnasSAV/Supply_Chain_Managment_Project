@@ -21,41 +21,33 @@ exports.getRoutesNotInTruckTripTodayByBranch = async (req, res) => {
 };
 
 exports.updateOrderStateTo2 = async (req, res) => {
-  // Extract order_ids from the request body
-  const { order_ids } = req.body;
+  // Extract order_id from the request body
+  const { order_id } = req.body;
 
   // Input Validation
-  if (!order_ids || !Array.isArray(order_ids) || order_ids.length === 0) {
-    return res.status(400).json({ message: 'Invalid or missing order_ids. It should be a non-empty array of integers.' });
+  if (!order_id || !Number.isInteger(order_id)) {
+    return res.status(400).json({ message: 'Invalid or missing order_id. It should be an integer.' });
   }
 
-  // Check that all elements in the array are integers
-  const invalidIds = order_ids.filter(id => !Number.isInteger(id));
-  if (invalidIds.length > 0) {
-    return res.status(400).json({ message: 'All order_ids should be integers.' });
-  }
-
-  console.log(`Manager updating order state to 2 for Order IDs: ${order_ids.join(', ')}`);
+  console.log(`Manager updating order state to 2 for Order ID: ${order_id}`);
 
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
 
-    for (const order_id of order_ids) {
-      // Call the stored procedure for each order_id
-      const [results] = await connection.query('CALL Update_Order_State_To_2(?)', [order_id]);
+    // Call the stored procedure for the single order_id
+    const [results] = await connection.query('CALL Update_Order_State_To_2(?)', [order_id]);
 
-      console.log(`Stored procedure executed successfully for Order ID ${order_id}:`, results);
-    }
+    console.log(`Stored procedure executed successfully for Order ID ${order_id}:`, results);
 
     await connection.commit();
 
     res.status(200).json({
-      message: 'Order states updated to 2 successfully.'
+      message: 'Order state updated to 2 successfully.'
     });
   } catch (error) {
     await connection.rollback();
-    console.error('Error updating order states:', error);
+    console.error('Error updating order state:', error);
 
     // Handle custom errors thrown by the stored procedure
     if (error.sqlState === '45000') { // Custom error from SIGNAL
@@ -69,8 +61,9 @@ exports.updateOrderStateTo2 = async (req, res) => {
 };
 
 
+
 exports.getLowestWorkedDriversByRoute = async (req, res) => {
-  const { branch_id, route_id } = req.params;
+  const { branch_id,route_id } = req.body;
 
   // Input Validation
   if (!branch_id) {
@@ -81,7 +74,7 @@ exports.getLowestWorkedDriversByRoute = async (req, res) => {
   }
 
   try {
-    const [results] = await pool.query('CALL Get_Lowest_Worked_Drivers_By_Route(?, ?)', [branch_id, route_id]);
+    const [results] = await pool.query('CALL Get_Lowest_Worked_Drivers_By_Route(?,?)', [branch_id,route_id]);
 
     res.status(200).json(results[0]); // results[0] contains the result set
   } catch (error) {
@@ -92,7 +85,7 @@ exports.getLowestWorkedDriversByRoute = async (req, res) => {
 
 
 exports.getLowestWorkedAssistantsByRoute = async (req, res) => {
-  const { branch_id, route_id } = req.params;
+  const { branch_id,route_id } = req.body;
 
   // Input Validation
   if (!branch_id) {
@@ -101,9 +94,8 @@ exports.getLowestWorkedAssistantsByRoute = async (req, res) => {
   if (!route_id) {
     return res.status(400).json({ message: 'route_id is required.' });
   }
-
   try {
-    const [results] = await pool.query('CALL Get_Lowest_Worked_Assistants_By_Route(?, ?)', [branch_id, route_id]);
+    const [results] = await pool.query('CALL Get_Lowest_Worked_Assistants_By_Route(?,?)', [branch_id,route_id]);
 
     res.status(200).json(results[0]); // results[0] contains the result set
   } catch (error) {
@@ -240,6 +232,68 @@ exports.addTruckTrip = async (req, res) => {
       return res.status(400).json({ message: error.message });
     }
 
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+};
+
+exports.getRoutesByBranch = async (req, res) => {
+  const { branch_id } = req.body;
+
+  // Input Validation
+  if (!branch_id) {
+    return res.status(400).json({ message: 'branch_id is required.' });
+  }
+
+  try {
+    const [results] = await pool.query('CALL Get_Routes_By_Branch(?)', [branch_id]);
+    
+    // Since the stored procedure returns a result set, we send the first element
+    res.status(200).json(results[0]);
+  } catch (error) {
+    console.error('Error fetching routes by branch:', error);
+
+    // Handle custom errors
+    if (error.sqlState === '45000') { // Custom error from SIGNAL
+      return res.status(400).json({ message: error.message });
+    }
+
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+};
+
+exports.getConfirmedOrdersByBranch = async (req, res) => {
+  const { branch_id } = req.body;
+
+  // Input Validation
+  if (!branch_id) {
+    return res.status(400).json({ message: 'branch_id is required.' });
+  }
+
+  try {
+    const [results] = await pool.query('CALL Get_Confirmed_Orders_By_Branch(?)', [branch_id]);
+    
+    res.status(200).json(results[0]); // results[0] contains the result set
+  } catch (error) {
+    console.error('Error fetching confirmed orders by branch:', error);
+    res.status(500).json({ message: 'Server error.', error: error.message });
+  }
+};
+
+exports.getTrucksByBranch = async (req, res) => {
+  const { branch_id } = req.body;
+
+  // Input Validation
+  if (!branch_id) {
+    return res.status(400).json({ message: 'branch_id is required.' });
+  }
+
+  try {
+    const [results] = await pool.query('CALL Get_Trucks_By_Branch(?)', [branch_id]);
+    
+    // Since the stored procedure returns a result set, we send the first element
+    res.status(200).json(results[0]);
+  } catch (error) {
+    console.error('Error fetching trucks by branch:', error);
     res.status(500).json({ message: 'Server error.', error: error.message });
   }
 };

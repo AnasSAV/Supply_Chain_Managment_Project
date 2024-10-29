@@ -21,5 +21,8 @@ router.post('/insert-delivery', truckTripController.insertDelivery);
 router.post('/get-incomplete-truck-trips-by-branch', truckTripController.getIncompleteTruckTripsByBranch);
 router.post('/add-working-hours-from-truck-trip', truckTripController.addWorkingHoursFromTruckTrip);
 router.post('/add-truck-trip', truckTripController.addTruckTrip);
+router.post('/get-routes-by-branch', truckTripController.getRoutesByBranch);
+router.post('/get-confirmed-orders-by-branch', truckTripController.getConfirmedOrdersByBranch);
+router.post('/get-trucks-by-branch', truckTripController.getTrucksByBranch);
 
 module.exports = router;
