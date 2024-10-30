@@ -316,3 +316,120 @@ exports.getAllOrderDetails = async (req, res) => {
         });
     }
 };
+
+exports.getWeeklyWorkingHoursDrivers = async (req, res) => {
+    try {
+        const [results] = await pool.query('CALL Get_Weekly_Working_Hours_Drivers()');
+
+        const formattedData = results[0].map(item => ({
+            name: item.driver_name,
+            hours: item.total_worked_hours
+        }));
+
+        res.json({
+            success: true,
+            data: formattedData
+        });
+    } catch (error) {
+        console.error('Error getting weekly working hours for drivers:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving working hours data for drivers',
+            error: error.message 
+        });
+    }
+};
+
+exports.getTotalTruckUsageHoursThisWeek = async (req, res) => {
+    try {
+        const [results] = await pool.query('CALL Get_Total_Truck_Usage_Hours_This_Week()');
+
+        const formattedData = results[0].map(item => ({
+            truck_id: item.truck_id,
+            total_trip_hours: item.total_trip_hours
+        }));
+
+        res.json({
+            success: true,
+            data: formattedData
+        });
+    } catch (error) {
+        console.error('Error getting total truck usage hours:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving truck usage hours data',
+            error: error.message 
+        });
+    }
+};
+
+exports.getSalesByCitiesAndRoutes = async (req, res) => {
+    try {
+        const [results] = await pool.query('CALL Get_Sales_By_Cities_And_Routes()');
+
+        const formattedData = results[0].map(item => ({
+            city: item.city,
+            route: item.route,
+            total_sales: item.total_sales
+        }));
+
+        res.json({
+            success: true,
+            data: formattedData
+        });
+    } catch (error) {
+        console.error('Error getting sales by cities and routes:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving sales data',
+            error: error.message 
+        });
+    }
+};
+
+exports.getItemsWithMostOrdersCurrentYear = async (req, res) => {
+    try {
+        const [results] = await pool.query('CALL Get_Items_With_Most_Orders_Current_Year()');
+
+        const formattedData = results[0].map(item => ({
+            product_name: item.product_name,
+            total_count: item.total_count
+        }));
+
+        res.json({
+            success: true,
+            data: formattedData
+        });
+    } catch (error) {
+        console.error('Error getting items with most orders:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving items data',
+            error: error.message 
+        });
+    }
+};
+
+exports.getQuarterlySalesReport = async (req, res) => {
+    const { year } = req.query; // Get the year from the query parameters
+    try {
+        const [results] = await pool.query('CALL Get_Quarterly_Sales_Report(?)', [year]);
+
+        const formattedData = results[0].map(item => ({
+            quarter: item.Quarter,
+            total_sales: item.Total_Sales
+        }));
+
+        res.json({
+            success: true,
+            data: formattedData
+        });
+    } catch (error) {
+        console.error('Error getting quarterly sales report:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving quarterly sales data',
+            error: error.message 
+        });
+    }
+};

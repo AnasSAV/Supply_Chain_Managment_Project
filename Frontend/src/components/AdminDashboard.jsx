@@ -17,15 +17,15 @@ const analyticsData = {
 };
 
 const chartData = [
-  { name: 'A', value: 400 },
-  { name: 'B', value: 300 },
-  { name: 'C', value: 200 },
-  { name: 'D', value: 278 },
-  { name: 'E', value: 189 },
-  { name: 'F', value: 400 },
-  { name: 'G', value: 300 },
-  { name: 'H', value: 200 },
-  { name: 'I', value: 278 },
+  { name: 'Jan', value: 40 },
+  { name: 'Feb', value: 39 },
+  { name: 'Mar', value: 20 },
+  { name: 'Apr', value: 28 },
+  { name: 'May', value: 19 },
+  { name: 'Jun', value: 40 },
+  { name: 'Jul', value: 31 },
+  { name: 'Aug', value: 28 },
+  { name: 'Sep', value: 28 },
 ];
 
 
@@ -252,7 +252,7 @@ const AdminDashboard = () => {
 
       {/* Performance Chart */}
       <div className="col-span-2 bg-white shadow-md rounded-lg p-6 w-auto transform transition duration-300 hover:scale-105 hover:shadow-2xl">
-        <h2 className="text-lg font-bold mb-4">Performance Chart</h2>
+        <h2 className="text-lg font-bold mb-4">Order Over Month Chart</h2>
         <BarChart width={500} height={400} data={chartData}>
           <defs>
             <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
