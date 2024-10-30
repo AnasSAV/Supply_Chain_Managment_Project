@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const truckTripController = require('../controllers/truckTripController');
 const authMiddleware = require('../middlewares/auth');
-
+const managerController = require('../controllers/managerController');
 
 router.use(authMiddleware.verifyToken);
 router.use(authMiddleware.requireRole('manager'));
@@ -26,6 +26,7 @@ router.post('/get-confirmed-orders-by-branch', truckTripController.getConfirmedO
 router.post('/get-trucks-by-branch', truckTripController.getTrucksByBranch);
 router.post('/get-truck-trips-by-branch-not-complete', truckTripController.getTruckTripsByBranchNotComplete);
 router.post('/get-orders-to-be-distributed-by-branch', truckTripController.getOrdersToBeDistributedByBranch);
+router.post('/get-branch-manager-info', managerController.getBranchManagerInfo);
 
 
 module.exports = router;
