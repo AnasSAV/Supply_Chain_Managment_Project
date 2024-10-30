@@ -12,4 +12,5 @@ router.post('/get-assistant-order-details-by-truck-trip', assistantController.ge
 router.post('/get-assistant-completed-trip-details', assistantController.getCompletedTripDetails);
 router.post('/mark-order-as-returned', assistantController.markOrderAsReturned);
 router.post('/get-assistant-left-working-hours', assistantController.getLeftWorkingHours);
+
 module.exports = router;
