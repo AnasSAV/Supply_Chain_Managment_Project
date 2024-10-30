@@ -100,14 +100,129 @@ const ManagerRoster = () => {
     });
   };
 
-  const handleFormSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    if (activeTab === 'Drivers') {
-      setDrivers([...drivers, newPerson]);
-    } else {
-      setAssistants([...assistants, newPerson]);
+    setIsSubmitting(true);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const branch_id = user.branch_id;
+
+      if (!branch_id) {
+        alert('Error: Branch ID not found. Please log in again.');
+        return;
+      }
+
+      // Prepare the data based on the active tab
+      const personData = {
+        [`${activeTab === 'Drivers' ? 'driver' : 'assistant'}_id`]: newPerson.id,
+        email: newPerson.email,
+        name: newPerson.name,
+        contact_number: newPerson.contactNumber,
+        branch_id: branch_id,
+        password: newPerson.password
+      };
+
+      console.log('Submitting data:', {
+        ...personData,
+        password: 'HIDDEN'
+      });
+
+      // Choose the appropriate endpoint based on the active tab
+      const endpoint = activeTab === 'Drivers' 
+        ? 'insert-driver'
+        : 'insert-assistant';
+
+      const response = await axios.post(
+        `http://localhost:3000/api/truckTrips/${endpoint}`,
+        personData,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('API Response:', response.data);
+
+      if (response.data.success) {
+        const newPerson = {
+          id: personData[`${activeTab === 'Drivers' ? 'driver' : 'assistant'}_id`],
+          name: personData.name,
+          workHours: 0,
+          workHoursLeft: activeTab === 'Drivers' ? 40 : 60,
+          recentTrip: 'No trips yet',
+          location: manager.branch,
+          route: 'Not assigned',
+          status: 'Available'
+        };
+
+        // Update the appropriate state array
+        if (activeTab === 'Drivers') {
+          setDrivers([...drivers, newPerson]);
+        } else {
+          setAssistants([...assistants, newPerson]);
+        }
+
+        // Show success message
+        alert(`${activeTab.slice(0, -1)} added successfully!`);
+        handleModalClose();
+      }
+    } catch (error) {
+      console.error('Error Details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      alert(error.response?.data?.message || `Failed to add ${activeTab.toLowerCase().slice(0, -1)}`);
+    } finally {
+      setIsSubmitting(false);
     }
-    handleModalClose();
+  };
+
+  // Update the validation function to handle both types
+  const validateForm = () => {
+    if (!user.branch_id) {
+      alert('Error: Branch ID not found. Please log in again.');
+      return false;
+    }
+
+    // ID validation based on type
+    const idPrefix = activeTab === 'Drivers' ? 'D' : 'A';
+    if (!newPerson.id.startsWith(idPrefix) || newPerson.id.length !== 5) {
+      alert(`${activeTab.slice(0, -1)} ID must start with ${idPrefix} and be 5 characters long (e.g., ${idPrefix}0001)`);
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newPerson.email)) {
+      alert('Please enter a valid email address');
+      return false;
+    }
+
+    // Name validation
+    if (newPerson.name.length < 2) {
+      alert('Name must be at least 2 characters long');
+      return false;
+    }
+
+    // Contact number validation
+    if (newPerson.contactNumber.length !== 10 || !/^\d+$/.test(newPerson.contactNumber)) {
+      alert('Contact number must be exactly 10 digits');
+      return false;
+    }
+
+    // Password validation
+    if (newPerson.password.length < 8) {
+      alert('Password must be at least 8 characters long');
+      return false;
+    }
+
+    return true;
   };
 
   return (
@@ -294,9 +409,11 @@ const ManagerRoster = () => {
                 <div className="flex space-x-3 pt-4">
                   <button
                     type="submit"
-                    className="flex-1 p-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded font-medium hover:opacity-90 transition-opacity"
+                    disabled={isSubmitting}
+                    className={`flex-1 p-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded font-medium 
+                      ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'} transition-opacity`}
                   >
-                    Add
+                    {isSubmitting ? 'Adding...' : 'Add'}
                   </button>
                   <button
                     type="button"
