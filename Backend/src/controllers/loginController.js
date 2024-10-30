@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 
 exports.login = async (req, res) => {
     const { email, password, role } = req.body;
-    console.log('Login attempt:', { email, role }); // Log login attempt
+    console.log('Login attempt:', { email, role });
+    
     if (!email || !password || !role) {
       return res.status(400).json({ message: 'Email, password, and role are required.' });
     }
@@ -21,15 +22,21 @@ exports.login = async (req, res) => {
         }
 
         const user = users[0];
-
         const passwordMatch = await bcrypt.compare(password, user.password);
 
         if (!passwordMatch) {
             return res.status(401).json({ message: 'Authentication failed. Wrong password.' });
         }
 
+        // Get the correct ID field based on role
+        const userId = user[`${role.toLowerCase()}_id`];
+
         const token = jwt.sign(
-            { id: user[`${role.toLowerCase()}_id`], email: user.email, role: role.toLowerCase() },
+            { 
+                id: userId,
+                email: user.email, 
+                role: role.toLowerCase() 
+            },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -37,7 +44,8 @@ exports.login = async (req, res) => {
         // Prepare response based on role
         const response = {
             token,
-            role: role.toLowerCase()
+            role: role.toLowerCase(),
+            id: userId // Include the ID in response
         };
 
         // Add branch_id to response for specific roles
@@ -45,7 +53,7 @@ exports.login = async (req, res) => {
             response.branch_id = user.branch_id;
         }
 
-        console.log('Login successful:', { email, role }); // Log successful login
+        console.log('Login successful:', { email, role, id: userId });
         res.json(response);
     } catch (error) {
         console.error('Login error:', error);

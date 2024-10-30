@@ -43,12 +43,13 @@ const Login = () => {
         localStorage.setItem('token', data.token);
         const branch_id = data.branch_id;
         
-        // Update AuthContext with user details
+        // Update AuthContext with user details including ID
         login(
           username,
           null,
           data.role,
-          branch_id
+          branch_id,
+          data.id
         );
 
         // Navigate based on role
@@ -71,6 +72,10 @@ const Login = () => {
           default:
             navigate('/dashboard');
         }
+
+        toast.success('Login successful!', {
+          position: 'top-center',
+        });
       } else {
         toast.error(data.message || 'Login failed. Please check your credentials.', {
           position: 'top-center',
