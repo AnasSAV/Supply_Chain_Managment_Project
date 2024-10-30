@@ -336,3 +336,27 @@ exports.getOrdersToBeDistributedByBranch = async (req, res) => {
   }
 };
 
+exports.getOrderSummary = async (req, res) => {
+  try {
+      const { branch_id } = req.body;
+
+      // Input validation
+      if (!branch_id) {
+          return res.status(400).json({ message: 'Branch ID is required' });
+      }
+
+      const [results] = await pool.query(
+          'CALL Get_Order_Summary_By_Branch_And_State(?)',
+          [branch_id]
+      );
+
+      // Send the first result set
+      res.json(results[0]);
+  } catch (error) {
+      console.error('Error getting order summary:', error);
+      res.status(500).json({ 
+          message: 'Error retrieving order summary',
+          error: error.message 
+      });
+  }
+};

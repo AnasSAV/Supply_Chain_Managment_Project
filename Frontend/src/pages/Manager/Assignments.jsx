@@ -579,7 +579,7 @@ const AssignmentPage = () => {
               <option value="">Select a Truck Trip</option>
               {incompleteTruckTrips.map((trip) => (
                 <option key={trip.truck_trip_id} value={trip.truck_trip_id}>
-                  Trip ID: {trip.truck_trip_id}, Truck: {trip.truck_id}, Route: {trip.route_id}
+                  Truck: {trip.truck_id}, Route: {trip.route_id}
                 </option>
               ))}
             </select>

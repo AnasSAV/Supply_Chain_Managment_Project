@@ -8,8 +8,8 @@ router.use(authMiddleware.requireRole('assistant'));
 
 router.get('/get-assistant-orders', assistantController.getAssistantOrderDetailsByTruckTrip);
 router.post('/mark-order-as-delivered', assistantController.markOrderAsDelivered);
-router.post('/mark-order-as-returned', assistantController.markOrderAsReturned);
 router.post('/get-assistant-order-details-by-truck-trip', assistantController.getOrderDetailsByTruckTrip);
 router.post('/get-assistant-completed-trip-details', assistantController.getCompletedTripDetails);
+router.post('/mark-order-as-returned', assistantController.markOrderAsReturned);
 
 module.exports = router;

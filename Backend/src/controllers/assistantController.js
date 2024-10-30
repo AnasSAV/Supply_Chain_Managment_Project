@@ -52,24 +52,47 @@ exports.markOrderAsDelivered = async (req, res) => {
 exports.markOrderAsReturned = async (req, res) => {
     const { order_id } = req.body;
   
-    // Input Validation
-    if (!order_id || !Number.isInteger(order_id)) {
-      return res.status(400).json({ message: 'Invalid or missing order_id. It should be an integer.' });
+    // Enhanced Input Validation
+    if (!order_id) {
+        return res.status(400).json({ message: 'Order ID is required' });
+    }
+
+    // Ensure order_id is an integer
+    const orderIdInt = parseInt(order_id, 10);
+    if (isNaN(orderIdInt)) {
+        return res.status(400).json({ message: 'Invalid order ID format' });
     }
   
     try {
-      const [results] = await pool.query('CALL Update_Order3_5_And_Delivery_Status0_2_Returned(?)', [order_id]);
+        console.log('Marking order as returned:', orderIdInt); // Debug log
+
+        const [results] = await pool.query(
+            'CALL Update_Order3_5_And_Delivery_Status0_2_Returned(?)', 
+            [orderIdInt]
+        );
   
-      res.status(200).json({ message: 'Order marked as returned successfully.' });
+        console.log('Procedure results:', results); // Debug log
+
+        return res.status(200).json({ 
+            success: true,
+            message: 'Order marked as returned successfully' 
+        });
     } catch (error) {
-      console.error('Error marking order as returned:', error);
+        console.error('Error marking order as returned:', error);
   
-      // Handle custom errors
-      if (error.sqlState === '45000') { // Custom error from SIGNAL
-        return res.status(400).json({ message: error.message });
-      }
+        // Handle specific errors
+        if (error.sqlState === '45000') {
+            return res.status(400).json({ 
+                success: false,
+                message: error.message 
+            });
+        }
   
-      res.status(500).json({ message: 'Server error.', error: error.message });
+        return res.status(500).json({ 
+            success: false,
+            message: 'Server error while marking order as returned',
+            error: error.message 
+        });
     }
   };
   
@@ -123,3 +146,4 @@ exports.getCompletedTripDetails = async (req, res) => {
       });
   }
 };
+

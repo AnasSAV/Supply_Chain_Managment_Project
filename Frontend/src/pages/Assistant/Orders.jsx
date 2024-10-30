@@ -42,7 +42,7 @@ const AssistantOrders = () => {
         try {
             const token = localStorage.getItem('token');
             await axios.post(
-                'http://localhost:3000/api/assistant/mark-order-as-delivered',
+                'http://localhost:3000/api/assistants/mark-order-as-delivered',
                 { order_id: orderId },
                 {
                     headers: {
@@ -55,7 +55,8 @@ const AssistantOrders = () => {
             fetchOrders();
         } catch (error) {
             console.error('Error confirming order:', error);
-            toast.error('Failed to confirm order');
+            const errorMessage = error.response?.data?.message || 'Failed to confirm order';
+            toast.error(errorMessage);
         }
     };
 
@@ -63,7 +64,7 @@ const AssistantOrders = () => {
         try {
             const token = localStorage.getItem('token');
             await axios.post(
-                'http://localhost:3000/api/assistant/mark-order-as-returned',
+                'http://localhost:3000/api/assistants/mark-order-as-returned',
                 { order_id: orderId },
                 {
                     headers: {

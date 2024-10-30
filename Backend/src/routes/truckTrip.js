@@ -26,5 +26,6 @@ router.post('/get-orders-to-be-distributed-by-branch', truckTripController.getOr
 router.post('/get-branch-manager-info', managerController.getBranchManagerInfo);
 router.post('/insert-driver', managerController.insertDriver);
 router.post('/insert-assistant', managerController.insertAssistant);
+router.post('/get-order-summary', truckTripController.getOrderSummary);
 
 module.exports = router;
