@@ -85,16 +85,6 @@ exports.getTrainTripsByDateAndBranch = async (req, res) => {
   }
 };
 
-exports.getAllOrders = async (req, res) => {
-  try {
-    const [orders] = await pool.query('SELECT * FROM order_product');
-
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error.', error });
-  }
-};
-
 exports.getPendingOrders = async (req, res) => {
   const { branch_id } = req.params;
 
@@ -213,3 +203,116 @@ exports.getFutureTrainTrips = async (req, res) => {
   }
 };
 
+exports.getBranchOrderCounts = async (req, res) => {
+  try {
+      const [results] = await pool.query(
+          'CALL Get_Current_Month_Order_Count_By_Branch_Name()'
+      );
+
+      res.json({
+          success: true,
+          branchCounts: results[0]
+      });
+
+  } catch (error) {
+      console.error('Error getting branch order counts:', error);
+      res.status(500).json({ 
+          success: false,
+          message: 'Error retrieving branch statistics',
+          error: error.message 
+      });
+  }
+};
+
+exports.getQuarterlySales = async (req, res) => {
+    try {
+        const year = req.body.year;
+        
+        const [results] = await pool.query(
+            'CALL Get_Quarterly_Sales_Report(?)',
+            [year]
+        );
+
+        res.json({
+            success: true,
+            data: results[0]
+        });
+
+    } catch (error) {
+        console.error('Error getting quarterly sales:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving quarterly sales data',
+            error: error.message 
+        });
+    }
+};
+
+exports.getWeeklyWorkingHours = async (req, res) => {
+  try {
+      const [results] = await pool.query(
+          'CALL Get_Weekly_Working_Hours_Assistants()'
+      );
+
+      const formattedData = results[0].map(item => ({
+          name: item.assistant_name,
+          hours: item.total_worked_hours
+      }));
+
+      res.json({
+          success: true,
+          data: formattedData
+      });
+
+  } catch (error) {
+      console.error('Error getting weekly working hours:', error);
+      res.status(500).json({ 
+          success: false,
+          message: 'Error retrieving working hours data',
+          error: error.message 
+      });
+  }
+};
+
+exports.getAllOrderDetails = async (req, res) => {
+    try {
+        const [results] = await pool.query(`
+            SELECT 
+                op.order_id AS Order_ID,
+                c.name AS Customer,
+                op.total_price AS Total,
+                op.state AS Status
+            FROM Order_Product op
+            JOIN Customer c ON op.customer_id = c.customer_id
+            ORDER BY op.order_id DESC;
+        `);
+
+        // Format the results to include status mapping
+        const formattedOrders = results.map(order => ({
+            ...order,
+            Status: (() => {
+                switch (order.Status) {
+                    case 0:
+                        return 'Pending';
+                    case 4:
+                    case 5:
+                        return 'Delivered';
+                    default:
+                        return 'Shipped';
+                }
+            })()
+        }));
+
+        res.json({
+            success: true,
+            orders: formattedOrders
+        });
+    } catch (error) {
+        console.error('Error getting order details:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving order details',
+            error: error.message 
+        });
+    }
+};

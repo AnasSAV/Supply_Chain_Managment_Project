@@ -5,13 +5,10 @@ import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tool
 
 // Sample data for the graphs
 const salesData = [
-  { month: 'Jan', revenue: 4000, orders: 2400 },
-  { month: 'Feb', revenue: 3000, orders: 2210 },
-  { month: 'Mar', revenue: 2000, orders: 2290 },
-  { month: 'Apr', revenue: 2780, orders: 2000 },
-  { month: 'May', revenue: 1890, orders: 2181 },
-  { month: 'Jun', revenue: 2390, orders: 2500 },
-  { month: 'Jul', revenue: 3490, orders: 2100 },
+  { month: '1', revenue: 4000, orders: 2400 },
+  { month: '2', revenue: 3000, orders: 2210 },
+  { month: '3', revenue: 2000, orders: 2290 },
+  { month: '4', revenue: 2780, orders: 2000 },
 ];
 
 const pieData = [
