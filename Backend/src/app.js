@@ -11,7 +11,7 @@ const loginRoutes = require('./routes/login');
 const trainTripRoutes = require('./routes/trainTrip');
 const truckTripRoutes = require('./routes/truckTrip');
 const assistantRoutes = require('./routes/assistant');
-
+const driverRoutes = require('./routes/driver');
 
 // CORS configuration
 const corsOptions = {
@@ -30,6 +30,9 @@ app.use('/api/login', loginRoutes);
 app.use('/api/trainTrips', trainTripRoutes);
 app.use('/api/truckTrips', truckTripRoutes);
 app.use('/api/assistants', assistantRoutes);
+app.use('/api/drivers', driverRoutes);
+
+
 // Error Handling Middleware
 app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Internal server error.', error: err });

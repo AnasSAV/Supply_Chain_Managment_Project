@@ -98,3 +98,28 @@ exports.getOrderDetailsByTruckTrip = async (req, res) => {
       });
   }
 };
+
+exports.getCompletedTripDetails = async (req, res) => {
+  try {
+      const { assistant_id } = req.body;
+      console.log('Fetching completed trip details for assistant:', assistant_id);
+
+      if (!assistant_id) {
+          return res.status(400).json({ message: 'Assistant ID is required' });
+      }
+
+      const [results] = await pool.query(
+          'CALL Get_Completed_Trip_Details_By_Assistant(?)',
+          [assistant_id]
+      );
+
+      console.log('Trip details found:', results[0]);
+      res.json(results[0]);
+  } catch (error) {
+      console.error('Error getting assistant completed trip details:', error);
+      res.status(500).json({ 
+          message: 'Error retrieving trip details',
+          error: error.message 
+      });
+  }
+};
