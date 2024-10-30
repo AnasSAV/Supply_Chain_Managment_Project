@@ -109,19 +109,19 @@ exports.getPendingOrders = async (req, res) => {
 };
 
 // Controller to assign selected orders to a train trip
-exports.assignOrders = async (req, res) => {
-  const { order_ids, train_trip_id } = req.body;
+exports.assignOrder = async (req, res) => {
+  const { order_id, train_trip_id } = req.body;
 
   // Input Validation
-  if (!order_ids || !Array.isArray(order_ids) || order_ids.length === 0) {
-    return res.status(400).json({ message: 'Invalid or missing order_ids. It should be a non-empty array.' });
+  if (!order_id || isNaN(order_id)) {
+    return res.status(400).json({ message: 'Invalid or missing order_id. It should be a number.' });
   }
 
   if (!train_trip_id || isNaN(train_trip_id)) {
     return res.status(400).json({ message: 'Invalid or missing train_trip_id. It should be a number.' });
   }
 
-  console.log(`Assigning Orders: ${order_ids.join(', ')} to Train Trip ID: ${train_trip_id}`);
+  console.log(`Assigning Order ID: ${order_id} to Train Trip ID: ${train_trip_id}`);
 
   let connection;
   try {
@@ -135,29 +135,27 @@ exports.assignOrders = async (req, res) => {
     }
     const trainBranchId = trainTrip[0].branch_id;
 
-    for (const order_id of order_ids) {
-      // Fetch the branch_id of the order
-      const [order] = await connection.query('SELECT branch_id FROM order_product WHERE order_id = ?', [order_id]);
-      if (order.length === 0) {
-        throw new Error(`Order with ID ${order_id} not found.`);
-      }
-      const orderBranchId = order[0].branch_id;
-
-      // Check if the branch_id of the order matches the branch_id of the train trip
-      if (orderBranchId !== trainBranchId) {
-        throw new Error(`Order with ID ${order_id} does not belong to the same branch as the train trip.`);
-      }
-
-      // Call the stored procedure for each order
-      await connection.query('CALL Add_Order_To_Train_If_Capacity(?, ?)', [order_id, train_trip_id]);
+    // Fetch the branch_id of the order
+    const [order] = await connection.query('SELECT branch_id FROM order_product WHERE order_id = ?', [order_id]);
+    if (order.length === 0) {
+      throw new Error(`Order with ID ${order_id} not found.`);
     }
+    const orderBranchId = order[0].branch_id;
+
+    // Check if the branch_id of the order matches the branch_id of the train trip
+    if (orderBranchId !== trainBranchId) {
+      throw new Error(`Order with ID ${order_id} does not belong to the same branch as the train trip.`);
+    }
+
+    // Call the stored procedure for the order
+    await connection.query('CALL Add_Order_To_Train_If_Capacity(?, ?)', [order_id, train_trip_id]);
 
     await connection.commit();
 
-    res.json({ message: 'Selected orders have been successfully assigned to the train trip.' });
+    res.json({ message: 'Order has been successfully assigned to the train trip.' });
   } catch (error) {
     if (connection) await connection.rollback();
-    console.error('Error assigning orders to train trip:', error);
+    console.error('Error assigning order to train trip:', error);
 
     // Relay specific SQL error messages to the client
     if (error.sqlState && error.sqlState.startsWith('45')) {
@@ -169,3 +167,49 @@ exports.assignOrders = async (req, res) => {
     if (connection) connection.release();
   }
 };
+
+
+exports.getOrdersByTrainAndDate = async (req, res) => {
+  try {
+    console.log('Received request with body:', req.body);
+    const { train_id, date } = req.body;
+
+    if (!train_id || !date) {
+      return res.status(400).json({ message: 'Train ID and date are required' });
+    }
+
+    const [results] = await pool.query(
+      'CALL Get_Orders_By_Train_And_Date(?, ?)',
+      [train_id, date]
+    );
+
+    console.log('Database results:', results);
+    
+    // First element contains our order IDs
+    const orders = results[0];
+    console.log('Sending orders:', orders);
+    
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('Error in getOrdersByTrainAndDate:', error);
+    res.status(500).json({ 
+      message: 'Failed to fetch orders',
+      error: error.message 
+    });
+  }
+};
+
+exports.getFutureTrainTrips = async (req, res) => {
+  try {
+    const [results] = await pool.query('CALL Get_Future_Train_Trips()');
+    
+    // MySQL returns stored procedure results as an array where the first element contains our data
+    const trainTrips = results[0];
+    
+    res.status(200).json(trainTrips);
+  } catch (error) {
+    console.error('Error fetching future train trips:', error);
+    res.status(500).json({ message: 'Failed to fetch future train trips' });
+  }
+};
+

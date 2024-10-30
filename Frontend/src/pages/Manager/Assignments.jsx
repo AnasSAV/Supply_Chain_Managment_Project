@@ -620,42 +620,6 @@ const AssignmentPage = () => {
             ))}
           </div>
 
-          {/* Visualization of Truck Trips and Assigned Orders */}
-          <h2 className="text-3xl font-bold mb-4 mt-6 text-teal-800">Truck Trips and Assigned Orders</h2>
-          <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
-            <thead>
-              <tr>
-                <th className="py-3 px-4 border-b bg-gray-100">Truck Trip</th>
-                <th className="py-3 px-4 border-b bg-gray-100">Assigned Orders</th>
-                <th className="py-3 px-4 border-b bg-gray-100">Completion Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {incompleteTruckTrips.map((trip) => (
-                <tr key={trip.truck_trip_id} className="hover:bg-gray-100 transition duration-200">
-                  <td className="py-2 px-4 border-b text-gray-700">
-                    Trip ID: {trip.truck_trip_id}, 
-                    Truck: {trip.truck_id}, 
-                    Driver: {trip.driver_id}, 
-                    Assistant: {trip.assistant_id}, 
-                    Route: {trip.route_id}
-                  </td>
-                  <td className="py-2 px-4 border-b text-gray-700">
-                    {trip.orders ? trip.orders.join(', ') : 'No orders assigned'}
-                  </td>
-                  <td className="py-2 px-4 border-b text-gray-700 text-center">
-                    <button
-                      onClick={() => handleCompleteTrip(trip.truck_trip_id)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
-                    >
-                      Mark as Completed
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
         </div>
       )}
     </div>

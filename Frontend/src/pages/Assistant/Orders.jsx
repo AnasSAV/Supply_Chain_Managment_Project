@@ -1,55 +1,72 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 
 const AssistantOrders = () => {
-    const [rides, setRides] = useState([]);
+    const [rides, setRides] = useState([
+        {
+            orderId: 'R123',
+            customerId: 'C001',
+            customerContact: '+1 234 567 890',
+        },
+        {
+            orderId: 'R124',
+            customerId: 'C002',
+            customerContact: '+1 987 654 321',
+        },
+    ]);
 
-    useEffect(() => {
-        // Fetch rides data from an API or database
-        axios.get('/api/rides')
-            .then(response => {
-                setRides(response.data);
-            })
-            .catch(error => {
-                console.error('There was an error fetching the rides!', error);
-            });
-    }, []);
+    const handleConfirmOrder = (rideId) => {
+        console.log(`Order ${rideId} confirmed.`);
+    };
+
+    const handleReturnOrder = (rideId) => {
+        console.log(`Order ${rideId} marked as returned.`);
+    };
 
     return (
-        <div>
-            <h1>Driver Orders</h1>
+        <div className="p-6">
+            <h1 className="text-3xl font-bold mb-6">Orders</h1>
             {rides.length === 0 ? (
-                <p>No rides available.</p>
+                <p className="text-gray-600">No rides available.</p>
             ) : (
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ride ID</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Pickup Location</th>
-                            <th>Dropoff Location</th>
-                            <th>Assistant</th>
-                            <th>Details</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rides.map(ride => (
-                            <tr key={ride.id}>
-                                <td>{ride.id}</td>
-                                <td>{ride.date}</td>
-                                <td>{ride.time}</td>
-                                <td>{ride.pickupLocation}</td>
-                                <td>{ride.dropoffLocation}</td>
-                                <td>{ride.assistant}</td>
-                                <td>{ride.details}</td>
+                <div className="overflow-x-auto shadow-lg rounded-2xl">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-lg ">
+                        <thead className="bg-gradient-to-r from-gray-700 to-gray-900 text-white">
+                            <tr>
+                                <th className="p-4 text-left">Order ID</th>
+                                <th className="p-4 text-left">Customer ID</th>
+                                <th className="p-4 text-left">Contact Number</th>
+                                <th className="p-4 text-center">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {rides.map((ride) => (
+                                <tr key={ride.id} className="border-b hover:bg-gray-100 transition duration-300 ease-in-out">
+                                    <td className="p-4">{ride.orderId}</td>
+                                    <td className="p-4">{ride.customerId}</td>
+                                    <td className="p-4">{ride.customerContact}</td>
+                                    <td className="p-4 flex gap-2 justify-center">
+                                        <button
+                                            onClick={() => handleConfirmOrder(ride.id)}
+                                            className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition duration-300"
+                                        >
+                                            Confirm Order
+                                        </button>
+                                        <button
+                                            onClick={() => handleReturnOrder(ride.id)}
+                                            className="bg-gradient-to-r from-rose-500 via-pink-600 to-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition duration-300"
+                                        >
+                                            Return Order
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             )}
         </div>
     );
 };
 
 export default AssistantOrders;
+

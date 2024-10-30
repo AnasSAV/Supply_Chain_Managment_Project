@@ -27,4 +27,5 @@ router.post('/get-trucks-by-branch', truckTripController.getTrucksByBranch);
 router.post('/get-truck-trips-by-branch-not-complete', truckTripController.getTruckTripsByBranchNotComplete);
 router.post('/get-orders-to-be-distributed-by-branch', truckTripController.getOrdersToBeDistributedByBranch);
 
+
 module.exports = router;

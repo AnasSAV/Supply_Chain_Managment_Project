@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import trainImage from '../../data/TrainTable.jpg'; 
+import axios from 'axios';
 
 toast.configure();
 
@@ -13,47 +14,70 @@ const AssignOrdersToTrains = () => {
   ]);
 
   const [trains, setTrains] = useState([]);
-
-  const [selectedOrders, setSelectedOrders] = useState([]);
+  const [assignedOrders, setAssignedOrders] = useState({});
   const [currentTrain, setCurrentTrain] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // New State for Train Trip creation
   const [newTrain, setNewTrain] = useState({ id: '', branch: '', date: '' });
-  const [activeTab, setActiveTab] = useState('create'); // Tab state
+  const [activeTab, setActiveTab] = useState('create');
 
-  // Sample train data (with start/end times, capacity, and end station)
   const trainOptions = [
-    { id: 'T001'},
+    { id: 'T001' },
     { id: 'T002' },
-    { id: 'T003'},
-    { id: 'T004'},
-    { id: 'T005'},
-    { id: 'T006'}
+    { id: 'T003' },
+    { id: 'T004' },
+    { id: 'T005' },
+    { id: 'T006' }
   ];
 
-    const trainTable = [
-      { train_id: 'T001', start: '06:00:00', end: '10:00:00', capacity: 500, end_station: 'Galle' },
-      { train_id: 'T002', start: '12:00:00', end: '16:00:00', capacity: 400, end_station: 'Galle' },
-      { train_id: 'T003', start: '05:00:00', end: '11:00:00', capacity: 300, end_station: 'Hambanthota' },
-      { train_id: 'T004', start: '13:00:00', end: '19:00:00', capacity: 350, end_station: 'Jaffna' },
-      { train_id: 'T005', start: '07:00:00', end: '13:00:00', capacity: 450, end_station: 'Colombo' },
-      { train_id: 'T006', start: '14:00:00', end: '20:00:00', capacity: 550, end_station: 'Colombo' },
-    ];
+  const trainTable = [
+    { train_id: 'T001', start: '06:00:00', end: '10:00:00', capacity: 500, end_station: 'Galle' },
+    { train_id: 'T002', start: '12:00:00', end: '16:00:00', capacity: 400, end_station: 'Galle' },
+    { train_id: 'T003', start: '05:00:00', end: '11:00:00', capacity: 300, end_station: 'Hambanthota' },
+    { train_id: 'T004', start: '13:00:00', end: '19:00:00', capacity: 350, end_station: 'Jaffna' },
+    { train_id: 'T005', start: '07:00:00', end: '13:00:00', capacity: 450, end_station: 'Colombo' },
+    { train_id: 'T006', start: '14:00:00', end: '20:00:00', capacity: 550, end_station: 'Colombo' },
+  ];
 
-  // Handle opening modal for selecting orders
-  const openModal = (trainId) => {
-    setCurrentTrain(trainId);
-    setIsModalOpen(true);
-  };
+  const [trainTrips, setTrainTrips] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Handle closing modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedOrders([]);
-  };
+  const [availableOrders, setAvailableOrders] = useState([]);
+  const [orderLoading, setOrderLoading] = useState(false);
+  const [orderError, setOrderError] = useState(null);
 
-  // Handle creating a new train trip
+  useEffect(() => {
+    const fetchTrainTrips = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setError('No authentication token found');
+          return;
+        }
+
+        const response = await axios.get('http://localhost:3000/api/trainTrips/get-future-train-trips', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        console.log('Fetched train trips:', response.data);
+        setTrainTrips(response.data);
+      } catch (error) {
+        console.error('Error fetching train trips:', error);
+        setError(error.response?.data?.message || 'Failed to fetch train trips');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (activeTab === 'assign') {
+      fetchTrainTrips();
+    }
+  }, [activeTab]);
+
   const handleCreateTrain = async () => {
     if (!newTrain.id || !newTrain.date) {
       toast.error('Please fill in all fields.');
@@ -79,8 +103,6 @@ const AssignOrdersToTrains = () => {
       }
 
       const data = await response.json();
-
-      // Update local state after successful API call
       const trainId = `train-${trains.length + 1}`;
       setTrains([
         ...trains,
@@ -92,7 +114,6 @@ const AssignOrdersToTrains = () => {
         },
       ]);
 
-      // Reset form
       setNewTrain({ id: '', branch: '', date: '' });
       toast.success('Train trip created successfully!');
 
@@ -102,54 +123,121 @@ const AssignOrdersToTrains = () => {
     }
   };
 
-// Helper function to handle order assignment
-const handleAssignOrder = (trainId, orderId) => {
-  // Logic to assign the order to the selected train
-  const updatedTrains = trains.map((train) => {
-    if (train.id === trainId) {
-      return {
-        ...train,
-        assignedOrders: [...train.assignedOrders, orderId],
-      };
-    }
-    return train;
-  });
-  setTrains(updatedTrains);
-  
-  // Show alert for successful assignment
-  alert("Order successfully assigned!");
-};
-
-  // Handle removing assigned orders (unassigning)
-  const handleRemoveAssignedOrder = (trainId, orderId) => {
-    const updatedTrains = trains.map((train) => {
-      if (train.id === trainId) {
-        return {
-          ...train,
-          assignedOrders: train.assignedOrders.filter((order) => order.id !== orderId),
-        };
+  const handleAssignOrder = async (trainTripId, orderId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('No authentication token found. Please login again.');
+        return;
       }
-      return train;
-    });
 
-    const unassignedOrder = trains
-      .find((train) => train.id === trainId)
-      .assignedOrders.find((order) => order.id === orderId);
+      // Show loading toast
+      const loadingToast = toast.loading('Assigning order...');
 
-    setTrains(updatedTrains);
-    setOrders((prevOrders) => [...prevOrders, unassignedOrder]);
-    toast.info(`Order ${unassignedOrder.name} unassigned from ${trains.find((train) => train.id === trainId).name}`);
+      const response = await axios.post(
+        'http://localhost:3000/api/trainTrips/assign',
+        {
+          order_id: orderId,
+          train_trip_id: parseInt(trainTripId)
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      // Dismiss loading toast and show success
+      toast.dismiss(loadingToast);
+      toast.success('Order assigned successfully!');
+
+      // Refresh the orders list for the current train trip
+      const selectedTrip = trainTrips.find(trip => trip.train_trip_id.toString() === trainTripId);
+      if (selectedTrip) {
+        // Fetch updated orders list
+        const updatedOrdersResponse = await axios.post(
+          'http://localhost:3000/api/trainTrips/get-orders-by-train-and-date',
+          {
+            train_id: selectedTrip.train_id,
+            date: new Date(selectedTrip.date).toISOString().split('T')[0]
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        setAvailableOrders(updatedOrdersResponse.data);
+      }
+
+    } catch (error) {
+      console.error('Error assigning order:', error);
+      
+      // Show appropriate error message
+      if (error.response?.status === 401) {
+        toast.error('Authentication failed. Please login again.');
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error('Failed to assign order. Please try again.');
+      }
+    }
   };
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  // Get today's date and calculate tomorrow's date
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const minDate = tomorrow.toISOString().split("T")[0]; // Format to "YYYY-MM-DD"
+  const minDate = tomorrow.toISOString().split("T")[0];
+
+  const handleTrainSelect = async (e) => {
+    const selectedTripId = e.target.value;
+    setCurrentTrain(selectedTripId);
+    
+    if (!selectedTripId) return;
+
+    // Find the selected train trip to get its train_id and date
+    const selectedTrip = trainTrips.find(trip => trip.train_trip_id.toString() === selectedTripId);
+    if (!selectedTrip) return;
+
+    setOrderLoading(true);
+    setOrderError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setOrderError('No authentication token found');
+        return;
+      }
+
+      const response = await axios.post(
+        'http://localhost:3000/api/trainTrips/get-orders-by-train-and-date',
+        {
+          train_id: selectedTrip.train_id,
+          date: new Date(selectedTrip.date).toISOString().split('T')[0]
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      console.log('Fetched orders:', response.data);
+      setAvailableOrders(response.data);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setOrderError(error.response?.data?.message || 'Failed to fetch orders');
+    } finally {
+      setOrderLoading(false);
+    }
+  };
 
   return (
     <div className="m-2 md:m-10 mt-24 p-6 bg-gradient-to-br from-white to-gray-100 rounded-3xl shadow-lg">
@@ -306,80 +394,66 @@ const handleAssignOrder = (trainId, orderId) => {
 
 
 {activeTab === 'assign' && (
-  <div className="bg-white p-6 rounded-lg shadow-lg">
-    <h3 className="text-2xl font-bold mb-4">Assign Orders to Train Trips</h3>
-    <div className="w-full">
-      <table className="min-w-full bg-white rounded-lg shadow-lg">
-        <thead className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white">
-          <tr>
-            <th className="px-6 py-3 text-left text-sm font-medium">Train Trip ID</th>
-            <th className="px-6 py-3 text-left text-sm font-medium">Train ID</th>
-            <th className="px-6 py-3 text-left text-sm font-medium">Capacity</th>
-            <th className="px-6 py-3 text-left text-sm font-medium">Assigned Orders</th>
-            <th className="px-6 py-3 text-left text-sm font-medium">Date of Trip</th>
-            {/* <th className="px-6 py-3 text-center text-sm font-medium">Action</th> */}
-          </tr>
-        </thead>
-        <tbody>
-          {trains.length > 0 ? (
-            trains.map((train) => (
-              <tr key={train.id} className="bg-gray-100 border-b">
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">{train.tripId}</td>
-                <td className="px-6 py-4 text-sm font-medium text-gray-900">{train.name}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{train.capacity}</td>
-                <td className="px-6 py-4 text-sm  text-gray-900">
-                  <div className="flex flex-wrap">
-                    {orders.map((order) => (
-                      <span key={order.id} className="flex items-center mb-2">
-                        <span
-                          className={`px-3 py-1 mr-0 rounded-full ${
-                            train.assignedOrders.includes(order.id)
-                              ? "bg-green-400 text-white"
-                              : "bg-gray-200 text-gray-600"
-                          }`}
-                        >
-                          {order.name} ({order.destination})
-                        </span>
+        <div className="bg-white p-6 rounded-lg shadow-lg">
+          <h3 className="text-3xl font-bold mb-4 text-blue-800">Assign Orders to Train Trips</h3>
+          <p className="text-gray-600 mb-4">
+            Select a train trip to assign orders.
+          </p>
+
+          <div className="mb-4">
+            {loading && <p className="text-gray-600">Loading train trips...</p>}
+            {error && <p className="text-red-500">Error: {error}</p>}
+            {!loading && !error && (
+              <select
+                value={currentTrain || ""}
+                onChange={handleTrainSelect}
+                className="w-full p-2 border rounded bg-white"
+              >
+                <option value="" disabled>
+                  Select a train trip
+                </option>
+                {trainTrips.map((trip) => (
+                  <option key={trip.train_trip_id} value={trip.train_trip_id}>
+                    Train {trip.train_id} - {new Date(trip.date).toLocaleDateString()}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {currentTrain && (
+            <div className="my-4">
+              <h4 className="text-xl font-bold mb-2 text-gray-800">Available Orders</h4>
+              {orderLoading && <p className="text-gray-600">Loading orders...</p>}
+              {orderError && <p className="text-red-500">Error: {orderError}</p>}
+              {!orderLoading && !orderError && (
+                <ul className="space-y-2">
+                  {availableOrders.length > 0 ? (
+                    availableOrders.map((order) => (
+                      <li key={order.order_id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <span className="font-medium">Order #{order.order_id}</span>
+                          {order.branch_id && (
+                            <span className="ml-2 text-gray-600">- Branch: {order.branch_id}</span>
+                          )}
+                        </div>
                         <button
-                          className={`px-2 py-1 ml-0 rounded ${
-                            train.assignedOrders.includes(order.id)
-                              ? "bg-gray-400 cursor-not-allowed"
-                              : "bg-blue-500 hover:bg-blue-600 text-white"
-                          }`}
-                          disabled={train.assignedOrders.includes(order.id)}
-                          onClick={() => {
-                            handleAssignOrder(train.id, order.id);
-                          }}
+                          onClick={() => handleAssignOrder(currentTrain, order.order_id)}
+                          className="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded transition duration-200"
                         >
-                          {train.assignedOrders.includes(order.id) ? "Assigned" : "Assign"}
+                          Assign
                         </button>
-                      </span>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-gray-900">{train.date}</td>
-                {/* <td className="px-6 py-4 text-center">
-                  <button
-                    disabled
-                    className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-4 py-2 rounded shadow cursor-not-allowed"
-                  >
-                    Orders Assigned
-                  </button>
-                </td> */}
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="6" className="text-center py-4 text-gray-600">
-                No train trips created yet.
-              </td>
-            </tr>
+                      </li>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">No orders available for this train trip</p>
+                  )}
+                </ul>
+              )}
+            </div>
           )}
-        </tbody>
-      </table>
-    </div>
-  </div>
-)}
+        </div>
+      )}
     </div>
   );
 };
