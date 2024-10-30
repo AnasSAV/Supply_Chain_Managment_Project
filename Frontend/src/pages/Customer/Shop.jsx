@@ -109,6 +109,10 @@ const Shop = () => {
   const [orderImageSrc, setOrderImageSrc] = useState(''); // State for order image source
   const [orderPrice, setOrderPrice] = useState(0); // State for order price
 
+  // New state variables for Branch ID and Route selection
+  const [selectedBranchId, setSelectedBranchId] = useState('');
+  const [selectedRoute, setSelectedRoute] = useState('');
+
   useEffect(() => {
     if (confirmationMessage) {
       const timer = setTimeout(() => {
@@ -269,6 +273,36 @@ const Shop = () => {
           Price: ${orderPrice} {/* Use state variable for price */}
         </p>
 
+        {/* Branch ID Selection */}
+        <div className="mb-3">
+          <label className="block text-md font-medium mb-1" htmlFor="branchId">Select Branch ID</label>
+          <select
+            id="branchId"
+            className="w-full p-2 border rounded-md focus:outline-none focus:border-blue-500"
+            onChange={(e) => setSelectedBranchId(e.target.value)}
+          >
+            <option value="">Choose a Branch</option>
+            <option value="B001">Branch B001</option>
+            <option value="B002">Branch B002</option>
+            <option value="B003">Branch B003</option>
+          </select>
+        </div>
+
+        {/* Route Selection */}
+        <div className="mb-4">
+          <label className="block text-md font-medium mb-1" htmlFor="routeId">Select Route</label>
+          <select
+            id="routeId"
+            className="w-full p-2 border rounded-md focus:outline-none focus:border-blue-500"
+            onChange={(e) => setSelectedRoute(e.target.value)}
+          >
+            <option value="">Choose a Route</option>
+            <option value="Route1">Route 1</option>
+            <option value="Route2">Route 2</option>
+            <option value="Route3">Route 3</option>
+          </select>
+        </div>
+
         {/* Delivery Type Selection */}
         <div className="flex flex-col space-y-1 mb-4">
           <label className="flex items-center">
@@ -303,6 +337,7 @@ const Shop = () => {
     </div>
   </div>
 )}
+
 
 
 

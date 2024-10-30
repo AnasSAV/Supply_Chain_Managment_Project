@@ -175,7 +175,7 @@ const CustomerDashboard = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Total Orders</h3>
-                    <p className="text-gray-500">120</p>
+                    <p className="text-gray-500">6</p>
                   </div>
                 </div>
 
@@ -187,7 +187,7 @@ const CustomerDashboard = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Pending Orders</h3>
-                    <p className="text-gray-500">12</p>
+                    <p className="text-gray-500">0</p>
                   </div>
                 </div>
 
@@ -199,7 +199,7 @@ const CustomerDashboard = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Shipped Orders</h3>
-                    <p className="text-gray-500">108</p>
+                    <p className="text-gray-500">2</p>
                   </div>
                 </div>
 
@@ -211,7 +211,7 @@ const CustomerDashboard = () => {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Delivered Orders</h3>
-                    <p className="text-gray-500">8</p>
+                    <p className="text-gray-500">4</p>
                   </div>
                 </div>
               </section>
