@@ -7,5 +7,6 @@ router.use(authMiddleware.verifyToken);
 router.use(authMiddleware.requireRole('driver'));
 
 router.post('/get-trip-details', driverController.getTripDetailsByDriver);
+router.post('/get-driver-left-working-hours', driverController.getLeftWorkingHours);
 
 module.exports = router; 

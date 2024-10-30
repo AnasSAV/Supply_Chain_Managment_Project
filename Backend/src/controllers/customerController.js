@@ -28,4 +28,33 @@ exports.register = async (req, res) => {
   }
 };
 
+exports.getOrderDetails = async (req, res) => {
+    try {
+        const { customer_id } = req.body;
+
+        // Input validation
+        if (!customer_id) {
+            return res.status(400).json({ message: 'Customer ID is required' });
+        }
+
+        const [results] = await pool.query(
+            'CALL Get_Order_Details_By_Customer(?)',
+            [customer_id]
+        );
+
+        res.json({
+            success: true,
+            orders: results[0]
+        });
+
+    } catch (error) {
+        console.error('Error getting customer order details:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving order details',
+            error: error.message 
+        });
+    }
+};
+
 

@@ -147,3 +147,39 @@ exports.getCompletedTripDetails = async (req, res) => {
   }
 };
 
+exports.getLeftWorkingHours = async (req, res) => {
+    try {
+        const { assistant_id } = req.body;
+
+        // Input validation
+        if (!assistant_id) {
+            return res.status(400).json({ message: 'Assistant ID is required' });
+        }
+
+        // Call the MySQL function
+        const [results] = await pool.query(
+            'SELECT Get_Left_Working_Hours_Assistant(?) AS leftHours',
+            [assistant_id]
+        );
+
+        // Format the time from the result
+        const leftHours = results[0].leftHours;
+        
+        // Convert MySQL TIME to readable format (HH:MM:SS)
+        const formattedTime = leftHours ? leftHours.slice(0, 8) : '00:00:00';
+
+        res.json({ 
+            success: true,
+            leftHours: formattedTime
+        });
+
+    } catch (error) {
+        console.error('Error getting assistant left working hours:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Error retrieving working hours',
+            error: error.message 
+        });
+    }
+};
+

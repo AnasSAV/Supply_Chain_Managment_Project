@@ -3,34 +3,64 @@ import { Link } from 'react-router-dom';
 
 export const orders = [
   {
-    id: '001',
-    date: 'Oct 1, 2024',
-    products: '2x Product A, 1x Product B',
-    imgSrc: 'https://images.unsplash.com/photo-1646753522408-077ef9839300?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    id: 1, products: 'Apple iPhone 13 Pro Gold 3D Model', price: 999, totalCapacity: 5, imgSrc: 'https://image.made-in-china.com/202f0j00ocCkiewWPvbn/Wholesale-of-Original-Brand-New-Smartphone-12-PRO-12-PRO-Max-Unlock-Phone.jpg',
   },
   {
-    id: '002',
-    date: 'Oct 3, 2024',
-    products: '1x Product C',
-    imgSrc: 'https://images.unsplash.com/photo-1651950519238-15835722f8bb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    id: 2, products: 'Apple iphone 15 Pro 128GB', price: 980, totalCapacity: 10, imgSrc: 'https://www.mistermobile.com.sg/wp-content/uploads/2024/09/Product-images-800-x-800-px-3-450x450.png',
   },
   {
-    id: '003',
-    date: 'Oct 5, 2024',
-    products: '1x Product D, 1x Product E',
-    imgSrc: 'https://images.unsplash.com/photo-1651950537598-373e4358d320?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    id: 3, products: 'Apple AirPods Max – Black', price: 200, totalCapacity: 5, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/62b4a2b30681a1656005299.jpg',
   },
   {
-    id: '004',
-    date: 'Oct 7, 2024',
-    products: '3x Product F',
-    imgSrc: 'https://images.unsplash.com/photo-1651950540805-b7c71869e689?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    id: 4, products: 'Transparent Back Cover for iPhone', price: 10, totalCapacity: 15, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/655fb5345db951700771124.webp',
   },
   {
-    id: '005',
-    date: 'Oct 9, 2024',
-    products: '2x Product G',
-    imgSrc: 'https://images.unsplash.com/photo-1649261191624-ca9f79ca3fc6?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
+    id: 5, products: 'HP 250 G9 Notebook PC – i5 12th Gen', price: 800, totalCapacity: 5, imgSrc: 'https://www.itsquare.lk/wp-content/uploads/2023/07/portatil-hp-250-g8-2x7l3ea-i3-8gb-512gb-ssd-15-6-win10-13.jpg',
+  },
+  {
+    id: 6, products: 'Refrigerator Innovex Direct Cool Refrigerator DDR195 – 180Ltr', price: 2000, totalCapacity: 10, imgSrc: 'https://damroonline.lk/wp-content/uploads/2021/06/DDR195-mr.jpg',
+  },
+  {
+    id: 7, products: 'JS Hello 3+ AMOLED Smart Watch AMOLED 4GB ROM ChatGPT 1:1 Size', price: 700, totalCapacity: 10, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/6513334a6447b1695757130.jpg',
+  },
+  {
+    id: 8, products: 'Apple iPad Pro 11 inch M1 Chip 2021', price: 1000, totalCapacity: 5, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/60ddbd41d9d6c1625144641.jpg',
+  },
+  {
+    id: 9, products: 'ASPOR A305 10000mAh Wireless Charging PowerBank', price: 179, totalCapacity: 15, imgSrc: 'https://www.simplytek.lk/cdn/shop/files/ASPOR-A305-PB-SIMPLYTEK-LK_610x_crop_center.png?v=1694426514',
+  },
+  {
+    id: 10, products: 'Haylou RS4 Plus Smart Watch with AMOLED Screen', price: 179, totalCapacity: 5, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/65132a6867bf51695754856.webp',
+  },
+  {
+    id: 11, products: 'JBL PartyBox Encore', price: 179, totalCapacity: 5, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/63dacd9be5f6d1675283867.jpg',
+  },
+  {
+    id: 12, products: '3D Analog Joystick For PlayStation 5', price: 179, totalCapacity: 15, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/62c2b66e2ba921656927854.jpg',
+  },
+  {
+    id: 13, products: 'Meta Quest 2 Advanced All In One Virtual Reality Headset 128 GB ', price: 179, totalCapacity: 10, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/6215e68380e541645602435.jpeg',
+  },
+  {
+    id: 14, products: 'Product A', price: 179, totalCapacity: 5, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/670ae3f27216a1728766962.webp',
+  },
+  {
+    id: 15, products: 'Product A', price: 179, totalCapacity: 10, imgSrc: 'https://d2bschjhk4kxui.cloudfront.net/assets/images/product/63ce21beb4a081674453438.webp',
+  },
+  {
+    id: 16, products: 'Product A', price: 179, totalCapacity: 5, imgSrc: 'https://i0.wp.com/tecroot.lk/wp-content/uploads/2021/05/apex-3.jpg?resize=300%2C300&ssl=1',
+  },
+  {
+    id: 17, products: 'Product A', price: 179, totalCapacity: 10, imgSrc: 'https://i0.wp.com/tecroot.lk/wp-content/uploads/2023/08/1-1.webp?fit=2115%2C1773&ssl=1',
+  },
+  {
+    id: 18, products: 'Product A', price: 179, totalCapacity: 5, imgSrc: 'https://www.nanotek.lk/uploads/product/2339-20240501121009-pd.png',
+  },
+  {
+    id: 19, products: 'Product A', price: 179, totalCapacity: 10, imgSrc: 'https://www.simplytek.lk/cdn/shop/files/JBL-Tune-510BT-Wireless-On-Ear-Bluetooth-Headphones-Sri-Lanka-SimplyTek-2_298x_crop_center.jpg?v=1694424770',
+  },
+  {
+    id: 20, products: 'Product A', price: 179, totalCapacity: 10, imgSrc: 'https://www.simplytek.lk/cdn/shop/files/JBL-Xtreme-4-Simplytek-lk-sri-lanka_2_298x_crop_center.png?v=1711600322',
   },
 ];
 
@@ -75,6 +105,9 @@ const Shop = () => {
   const [selectedQuantity, setSelectedQuantity] = useState(1);
   const [confirmationMessage, setConfirmationMessage] = useState(''); 
   const [limitMessage, setLimitMessage] = useState(''); // New state for limit message
+  const [selectedDeliveryType, setSelectedDeliveryType] = useState('COD'); // Default to 'COD'
+  const [orderImageSrc, setOrderImageSrc] = useState(''); // State for order image source
+  const [orderPrice, setOrderPrice] = useState(0); // State for order price
 
   useEffect(() => {
     if (confirmationMessage) {
@@ -112,19 +145,26 @@ const Shop = () => {
     }));
   };
 
-  const handleBuy = (id) => {
-    setSelectedOrderId(id);
-    setSelectedQuantity(quantities[id]);
-    setIsModalOpen(true); 
+  const handleBuy = (orderId) => {
+    const selectedOrder = orders.find((order) => order.id === orderId);
+    if (selectedOrder) {
+      setSelectedOrderId(selectedOrder.id);
+      setOrderImageSrc(selectedOrder.imgSrc); // Ensure imgSrc is in your order object
+      setOrderPrice(selectedOrder.price); // Ensure price is in your order object
+      setIsModalOpen(true);
+    }
   };
 
   const confirmOrder = () => {
-    setConfirmationMessage(`Order #${selectedOrderId} has been confirmed.`); 
-    setIsModalOpen(false); 
+    // Your order confirmation logic here
+    console.log(`Order Confirmed: ${selectedOrderId}, Quantity: ${selectedQuantity}, Delivery Type: ${selectedDeliveryType}`);
+    setIsModalOpen(false); // Close the modal after confirmation
   };
 
   return (
     <div className="p-6">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-1">Shop Items</h1>
+      <h3 className="text-sm font-medium text-gray-500 mb-4">Select the quantity and buy</h3>
       {confirmationMessage && (
         <div className="mb-4 p-4 bg-green-100 text-green-800 border border-green-400 rounded flex items-center justify-between">
           <span className="font-semibold">{confirmationMessage}</span>
@@ -147,74 +187,125 @@ const Shop = () => {
           </button>
         </div>
       )}
-      <section className="w-fit mx-auto grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 justify-items-center justify-center gap-y-20 gap-x-14 mt-10 mb-5">
+      <section className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 justify-items-center gap-y-8 gap-x-6 mt-8 mb-5 px-4">
         {orders.map((order) => (
           <div
             key={order.id}
-            className="w-72 bg-white shadow-md rounded-xl duration-500 hover:scale-105 hover:shadow-xl"
+            className="w-56 bg-white shadow-md rounded-lg transform transition duration-300 hover:scale-105 hover:shadow-lg p-3 flex flex-col justify-between"
           >
+            {/* Image */}
             <img
               src={order.imgSrc}
-              alt="Product"
-              className="w-full h-40 object-cover rounded-t-xl"
+              alt={order.products}
+              className="w-full h-46 object-cover rounded-md"
             />
-            <div className="px-4 py-3 w-72">
-              <span className="text-gray-400 mr-3 uppercase text-xs">Order #{order.id}</span>
-              <p className="text-lg font-bold text-black truncate block capitalize">{order.products}</p>
-              <div className="flex items-center">
-                <p className="text-lg font-semibold text-black cursor-auto my-3">{order.date}</p>
-                <del>
-                  <p className="text-sm text-gray-600 cursor-auto ml-2">199 $</p>
- </del>
- <p className="text-sm text-gray-600 cursor-auto ml-2">179</p>
-                <p className="text-lg font-bold text-black cursor-auto ml-2">${order.price}</p>
-              </div>
-              <div className="flex justify-between items-center">
+            
+            {/* Product Info */}
+            <div className="mt-2 flex flex-col flex-grow justify-between">
+              <p className="text-sm font-semibold text-gray-800 truncate">{order.products}</p>
+              <p className="text-md font-bold text-orange-600 my-1">${order.price}</p>
+
+              {/* Bottom Section with Quantity and Buy Button */}
+              <div className="flex items-center justify-between mt-2">
+              {/* Quantity Adjuster */}
+              <div className="flex items-center space-x-2 mt-4 text-xs">
                 <button
-                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                  className="w-8 h-8 flex items-center justify-center text-sm font-medium text-gray-900 rounded-full bg-slate-300 hover:text-black focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800 transition duration-200"
                   onClick={() => handleDecrement(order.id)}
                 >
                   -
                 </button>
-                <span className="text-lg font-bold">{quantities[order.id]}</span>
+                <span className="text-md font-medium text-gray-700">{quantities[order.id] || 0}</span>
                 <button
-                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
+                  className="w-8 h-8 flex items-center justify-center text-sm font-medium text-gray-900 rounded-full bg-slate-300 hover:text-black focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800 transition duration-200"
                   onClick={() => handleIncrement(order.id)}
                 >
                   +
                 </button>
-                <button
-                  className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded ml-4"
-                  onClick={() => handleBuy(order.id)}
-                >
-                  Buy
-                </button>
+              </div>
+
+
+                {/* Buy Button and Capacity Info */}
+                <div className="flex flex-col items-end">
+                  <p className="text-xs text-gray-500 mb-2">Total Capacity: {order.totalCapacity}</p>
+                  <button
+                    className="w-20 mt-1  bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 text-white font-semibold py-1 px-3 rounded-md text-sm transition duration-200"
+                    onClick={() => handleBuy(order.id)}
+                  >
+                    Buy
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         ))}
       </section>
+
+
       {isModalOpen && (
-        <div
-          className="fixed top-0 left-0 w-full h-screen bg-black bg-opacity-50 flex justify-center items-center"
-          onClick={() => setIsModalOpen(false)}
-        >
-          <div
-            className="bg-white rounded-lg p-4 w-1/2 h-1/2 flex flex-col justify-center items-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-bold mb-4">Confirm Order</h2>
-            <p className="text-lg mb-4">Order #${selectedOrderId}</p>
-            <p className="text-lg mb-4">Quantity: {selectedQuantity}</p>
-            <button
-              className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded"
-              onClick={confirmOrder}
-            >
-              Confirm
-            </button>
-          </div>
+  <div
+    className="fixed top-0 left-0 w-full h-screen bg-black bg-opacity-50 flex justify-center items-center"
+    onClick={() => setIsModalOpen(false)}
+  >
+    <div
+      className="bg-white rounded-lg p-6 w-11/12 md:w-1/3 h-auto flex flex-col md:flex-row justify-between items-start shadow-lg transition-transform transform duration-300 scale-100 hover:scale-105"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Left Section: Order Image */}
+      <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-4">
+        <img
+          src={orderImageSrc} // Use the state variable for image source
+          alt="Order Image"
+          className="w-24 h-24 object-cover rounded-lg shadow-md"
+        />
+      </div>
+
+      {/* Right Section: Order Details */}
+      <div className="flex-grow">
+        <h2 className="text-xl font-semibold mb-1">Confirm Order</h2>
+        <p className="text-md mb-1">Order #{selectedOrderId}</p>
+        <p className="text-md mb-1">Quantity: {selectedQuantity}</p>
+        <p className="text-lg font-bold text-blue-500 mb-3">
+          Price: ${orderPrice} {/* Use state variable for price */}
+        </p>
+
+        {/* Delivery Type Selection */}
+        <div className="flex flex-col space-y-1 mb-4">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="deliveryType"
+              value="COD"
+              className="mr-2"
+              onChange={() => setSelectedDeliveryType('COD')}
+            />
+            <span className="text-md">Cash on Delivery</span>
+          </label>
+          <label className="flex items-center">
+            <input
+              type="radio"
+              name="deliveryType"
+              value="Pay Now"
+              className="mr-2"
+              onChange={() => setSelectedDeliveryType('Pay Now')}
+            />
+            <span className="text-md">Pay Now</span>
+          </label>
         </div>
-      )}
+
+        <button
+          className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold py-2 px-4 rounded-md w-full transition duration-200 transform hover:scale-105"
+          onClick={confirmOrder}
+        >
+          Confirm Order
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 };

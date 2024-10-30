@@ -7,6 +7,8 @@ import { GoogleMap, DirectionsRenderer, Marker, TrafficLayer, useLoadScript } fr
 import { useRef } from "react";
 import { Calendar as ReactCalendar } from 'react-calendar'; // Example using react-calendar
 import 'react-calendar/dist/Calendar.css'; // Import calendar styles
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 const libraries = ["places"];
 
@@ -102,6 +104,51 @@ const DriverDashboard = ({ routes }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  const [workingHours, setWorkingHours] = useState({
+    totalHours: 60, // 60 hours per week
+    leftHours: '00:00:00'
+  });
+
+  useEffect(() => {
+    const fetchWorkingHours = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.post(
+          'http://localhost:3000/api/assistants/get-assistant-left-working-hours',
+          {
+            assistant_id: user.id
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.data.success) {
+          // Convert HH:MM:SS to hours
+          const [hours, minutes] = response.data.leftHours.split(':');
+          const leftHoursDecimal = parseInt(hours) + (parseInt(minutes) / 60);
+          const workedHours = 60 - leftHoursDecimal; // 60 is total weekly hours
+
+          setWorkingHours({
+            totalHours: 60,
+            leftHours: response.data.leftHours,
+            workedHours: workedHours.toFixed(1)
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching working hours:', error);
+        toast.error('Failed to fetch working hours');
+      }
+    };
+
+    if (user && user.id) {
+      fetchWorkingHours();
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout(); 
@@ -266,13 +313,36 @@ const DriverDashboard = ({ routes }) => {
                 </div> */}
 
                 {/* Tasks Completed */}
-                <div className="p-3 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 relative">
-                  <h3 className="text-lg font-semibold">Tasks Completed</h3>
-                  <p className="mt-1 text-3xl font-bold text-blue-600">8/10</p>
-                  <p className="mt-1 text-gray-600 text-sm">Deliveries Completed</p>
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-200 via-blue-300 to-blue-500 opacity-25 rounded-2xl blur-xl z-[-1]"></div>
-                  <div className="mt-2 h-1.5 w-full bg-gray-200 rounded-full">
-                    <div className="h-1.5 bg-blue-500 rounded-full" style={{ width: "80%" }}></div>
+                <div className="p-4 h-30 bg-white rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-300 relative">
+                  {/* Card Header */}
+                  <h3 className="text-xl font-semibold text-gray-800">Work Hours</h3>
+
+                  {/* Current vs Total Work Hours */}
+                  <div className="mt-4 flex items-baseline">
+                    <p className="text-4xl font-bold text-blue-600 mr-2">
+                      {workingHours.workedHours || '0'}
+                    </p>
+                    <span className="text-gray-500 text-xl">
+                      / {workingHours.totalHours} hrs
+                    </span>
+                  </div>
+
+                  {/* Background Gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-200 via-blue-300 to-blue-500 opacity-20 rounded-2xl blur-xl z-[-1]"></div>
+
+                  {/* Progress Bar */}
+                  <div className="mt-6">
+                    <div className="h-3 w-full bg-gray-200 rounded-full">
+                      <div
+                        className="h-2 bg-blue-500 rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${(workingHours.workedHours / workingHours.totalHours) * 100}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-2">
+                      {workingHours.leftHours} hours remaining this week
+                    </p>
                   </div>
                 </div>
 
