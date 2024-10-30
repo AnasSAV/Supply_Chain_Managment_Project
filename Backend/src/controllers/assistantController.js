@@ -73,3 +73,28 @@ exports.markOrderAsReturned = async (req, res) => {
     }
   };
   
+exports.getOrderDetailsByTruckTrip = async (req, res) => {
+  try {
+      const { assistant_id } = req.body;
+
+      if (!assistant_id) {
+          return res.status(400).json({ message: 'Assistant ID is required' });
+      }
+
+      const [results] = await pool.query(
+          'CALL Get_Assistant_Order_Details_By_Truck_Trip(?)',
+          [assistant_id]
+      );
+
+      // The first element contains the order details
+      const orderDetails = results[0];
+
+      res.json(orderDetails);
+  } catch (error) {
+      console.error('Error getting assistant order details:', error);
+      res.status(500).json({ 
+          message: 'Error retrieving order details',
+          error: error.message 
+      });
+  }
+};
