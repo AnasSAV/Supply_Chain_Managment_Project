@@ -1,0 +1,1527 @@
+///////////////////////////     procedures       //////////////////////////
+
+
+
+************************    add_order_product     ***************************
+
+DELIMITER $$
+
+CREATE PROCEDURE add_order_product (
+    IN p_quantity INT,
+    IN p_total_price INT,
+    IN p_total_capacity INT,
+    IN p_delivery_type VARCHAR(10),
+    IN p_customer_id INT,
+    IN p_product_id VARCHAR(8),
+    IN p_route_id VARCHAR(10),
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+
+        ROLLBACK;
+
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Failed to add order product due to an SQL exception.';
+    END;
+
+
+    START TRANSACTION;
+
+
+    INSERT INTO Order_Product (quantity, date, time, state, total_price, total_capacity, delivery_type, customer_id, product_id, route_id, branch_id)
+    VALUES (p_quantity, CURRENT_DATE, CURRENT_TIME, 0, p_total_price, p_total_capacity, p_delivery_type, p_customer_id, p_product_id, p_route_id, p_branch_id);
+
+
+    COMMIT;
+END $$
+
+DELIMITER ;
+
+
+
+************************      get_orders_customer       ************************************ customer
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE get_orders_customer(IN p_id INT)
+BEGIN
+    SELECT order_id, quantity, date, state, total_price, time, delivery_type, product_id
+    FROM Order_Product
+    WHERE customer_id = p_id;
+END $$
+
+DELIMITER ;
+
+
+
+*************************          search_order                 ****************************  public
+
+
+DELIMITER $$
+
+CREATE PROCEDURE search_order(IN p_order_id INT)
+BEGIN
+    SELECT order_id, date, state, total_price, delivery_type
+    FROM Order_Product
+    WHERE order_id = p_order_id;
+END $$
+
+DELIMITER ;
+
+
+
+
+***********************             get_customers_state_0             *****************************    Admin
+
+
+DELIMITER $$
+
+CREATE PROCEDURE get_customers_state_0(IN p_branch_id VARCHAR(6))
+BEGIN
+    SELECT *
+    FROM Order_Product
+    WHERE state = 0 AND branch_id = p_branch_id;
+END $$
+
+DELIMITER ;
+
+
+
+
+***********************         Add_Order_To_Train_If_Capacity         **********************************   admin
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Add_Order_To_Train_If_Capacity(
+    IN p_order_id INT,
+    IN p_train_trip_id INT
+)
+BEGIN
+    DECLARE v_order_capacity INT;
+    DECLARE v_train_capacity INT;
+
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transaction failed due to an SQL exception';
+    END;
+
+    
+    START TRANSACTION;
+
+ 
+    SELECT total_capacity INTO v_order_capacity
+    FROM Order_Product
+    WHERE order_id = p_order_id;
+
+
+    SELECT cur_capacity INTO v_train_capacity
+    FROM Train_Trip
+    WHERE train_trip_id = p_train_trip_id;
+
+
+    IF v_train_capacity >= v_order_capacity THEN
+        
+        UPDATE Order_Product
+        SET state = 1
+        WHERE order_id = p_order_id;
+
+      
+        INSERT INTO Order_Train (train_trip_id, order_id)
+        VALUES (p_train_trip_id, p_order_id);
+
+
+        UPDATE Train_Trip
+        SET cur_capacity = cur_capacity - v_order_capacity
+        WHERE train_trip_id = p_train_trip_id;
+    ELSE
+
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Train capacity is insufficient for this order.';
+    END IF;
+
+
+    COMMIT;
+END $$
+
+DELIMITER ;
+
+
+**********************************           Get_Trains_Not_In_Trip_Today          ***************************************  admin  ////////////////////////////////////////////////
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Trains_Not_In_Trip_Today()
+BEGIN
+    -- Select train_id from Train table that are not in today's Train_Trip
+    SELECT train_id,end
+    FROM Train
+    WHERE train_id NOT IN (
+        SELECT train_id                                           ////////////////////     removed              ////////////////////////////
+        FROM Train_Trip
+        WHERE DATE(date) = CURDATE()
+    );
+END $$
+
+DELIMITER ;
+
+
+
+
+***********************************       Get_Train_Trips_By_Date_And_Branch     ****************************   admin 
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Future_Train_Trips_Details_By_Branch(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+
+    SELECT train_trip_id, train_id, date, cur_capacity
+    FROM Train_Trip
+    WHERE date > CURDATE()  
+    AND branch_id = p_branch_id;
+
+END $$
+
+DELIMITER ;
+
+
+
+
+
+******************************             Insert_Train_Trip                  *********************************** 
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Insert_Train_Trip_By_Train(
+    IN p_train_id VARCHAR(5),
+    IN p_date DATE
+)
+BEGIN
+    DECLARE v_branch_id VARCHAR(6);
+    DECLARE v_capacity INT;
+    DECLARE v_end_station VARCHAR(20);
+
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transaction failed due to an SQL exception';
+    END;
+
+
+    START TRANSACTION;
+
+
+    SELECT b.branch_id, t.capacity, t.end_station
+    INTO v_branch_id, v_capacity, v_end_station
+    FROM Train t
+    JOIN Branch b ON b.branch_name = t.end_station
+    WHERE t.train_id = p_train_id;
+
+
+    INSERT INTO Train_Trip (train_id, date, branch_id, cur_capacity)
+    VALUES (p_train_id, p_date, v_branch_id, v_capacity);
+
+
+    COMMIT;
+END $$
+
+DELIMITER ;
+
+
+
+************************             Get_Trains_Not_In_Trip_By_Date                    *****************************************
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Trains_Not_In_Trip_By_Date(
+    IN p_date DATE
+)
+BEGIN
+    SELECT train_id, end AS end_station, capacity
+    FROM Train
+    WHERE train_id NOT IN (
+        SELECT train_id 
+        FROM Train_Trip
+        WHERE DATE(date) = p_date
+    );
+END $$
+
+DELIMITER ;
+
+
+
+
+**************************          Get_Routes_By_Branch_Name          *******************************     customer
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Routes_By_Branch_Name(
+    IN p_branch_name VARCHAR(15) 
+
+)
+BEGIN
+
+    DECLARE branch_count INT;
+
+
+    SELECT COUNT(*)
+    INTO branch_count
+    FROM Branch
+    WHERE branch_name = p_branch_name;
+
+
+    IF branch_count = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: Branch name does not exist!';
+    ELSE
+
+        SELECT route_name, route_id
+        FROM Branch
+        JOIN Route USING(branch_id)
+        WHERE branch_name = p_branch_name;
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+
+**************************           Get_Items_With_Most_Orders             **********************************
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Items_With_Most_Quantity()
+BEGIN
+   
+    SELECT p.product_name, SUM(op.quantity) AS total_quantity
+    FROM Order_Product op
+    JOIN Product p ON op.product_id = p.product_id
+    GROUP BY p.product_name
+    ORDER BY total_quantity DESC;
+END $$
+
+DELIMITER ;
+
+
+
+***************************         Get_Quarterly_Sales_Report              ************************************
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Quarterly_Sales_Report(
+    IN p_year INT
+)
+BEGIN
+
+    SELECT 
+        QUARTER(date) AS quarter, 
+        SUM(total_price) AS total_sales
+    FROM Order_Product
+    WHERE YEAR(date) = p_year
+    GROUP BY QUARTER(date)
+    ORDER BY quarter;
+END $$
+
+DELIMITER ;
+
+
+
+
+****************************               Get_Confirmed_Orders_By_Branch                 ***********************************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Confirmed_Orders_By_Branch(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+
+    SELECT 
+        order_id
+    FROM Order_Product
+    WHERE state = 1
+    AND branch_id = p_branch_id;
+END $$
+
+DELIMITER ;
+
+
+
+************************                 Update_Order_State_To_2                    ********************************
+
+DELIMITER $$
+
+CREATE PROCEDURE Update_Order_State_To_2(
+    IN p_order_id INT -- Changed from VARCHAR(7) to INT
+)
+BEGIN
+
+    UPDATE Order_Product
+    SET state = 2
+    WHERE order_id = p_order_id
+    AND state = 1;
+
+
+    IF ROW_COUNT() = 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: No order found with the given order_id or state is not 1';
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+
+
+
+*****************            Get_Route_Names_By_Branch                *****************************         managerr
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Route_Names_By_Branch(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+
+    SELECT route_name
+    FROM Route
+    WHERE branch_id = p_branch_id;
+END $$
+
+DELIMITER ;
+
+
+********************                  Get_Order_Details_By_Route_And_State                                   **************************************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Order_Details_By_Route_And_State(
+    IN p_route_id VARCHAR(10) 
+)
+BEGIN
+
+    SELECT 
+        order_id, 
+        product_id, 
+        quantity, 
+        total_price, 
+        total_capacity, 
+        date, 
+        time, 
+        delivery_type, 
+        customer_id
+    FROM Order_Product
+    WHERE state = 2
+    AND route_id = p_route_id;
+END $$
+
+DELIMITER ;
+
+
+****************************                 Get_Routes_Not_In_Truck_Trip_Today_By_Branch                        ****************************************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Routes_Not_In_Truck_Trip_Today_By_Branch(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+
+    SELECT r.route_name
+    FROM Route r
+    WHERE r.route_id NOT IN (
+        SELECT tt.route_id
+        FROM Truck_Trip tt
+        WHERE DATE(tt.date) = CURDATE()
+    )
+    AND r.branch_id = p_branch_id;
+END $$
+
+DELIMITER ;
+
+
+
+
+************************                 Get_Available_Drivers               **************************    manager
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Available_Drivers()
+BEGIN
+
+    SELECT d.driver_id, d.driver_name, SUM(wh.worked_hours) AS total_hours
+    FROM Driver d
+    LEFT JOIN Working_Hours_Drivers wh ON d.driver_id = wh.driver_id
+    LEFT JOIN Truck_Trip tt ON d.driver_id = tt.driver_id
+    WHERE d.driver_id NOT IN (
+       
+        SELECT tt.driver_id
+        FROM Truck_Trip tt
+        WHERE tt.state = 0
+    )
+    AND d.drive_id NOT IN(
+	SELECT driver_id                                 **************  removed   *************
+	FROM Truck_Trip
+	WHERE state = 1
+	ORDER BY date DESC, time DESC
+	LIMIT 1
+
+    )
+        
+    AND WEEK(wh.date) = WEEK(CURDATE())  -- Filter for the current week
+    HAVING total_hours < 40  
+    ORDER BY total_hours ASC;  
+END $$
+
+DELIMITER ;
+
+
+
+
+#####################            updated         
+
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Lowest_Worked_Drivers_By_Branch(
+    IN p_branch_id VARCHAR(6)
+    
+)
+BEGIN
+
+
+    SELECT d.driver_id, d.name, SEC_TO_TIME(IFNULL(SUM(TIME_TO_SEC(wh.worked_hours)), 0)) AS total_hours
+    FROM Driver d
+    LEFT JOIN Working_Hours_Drivers wh ON d.driver_id = wh.driver_id
+    WHERE d.branch_id = p_branch_id  
+    AND (wh.date IS NULL OR WEEK(wh.date) = WEEK(CURDATE()))  
+    AND d.driver_id NOT IN (
+
+        SELECT tt.driver_id 
+        FROM Truck_Trip tt 
+        WHERE tt.state = 0
+    )
+    AND d.driver_id NOT IN (
+
+        SELECT wh2.driver_id 
+        FROM Working_Hours_Drivers wh2
+        WHERE wh2.working_driver_id = (
+            SELECT MAX(wh3.working_driver_id)
+            FROM Working_Hours_Drivers wh3
+        )
+    )
+    GROUP BY d.driver_id, d.name
+    HAVING TIME_TO_SEC(total_hours)  < 144000  
+    ORDER BY total_hours ASC;  
+END $$
+
+DELIMITER ;
+
+
+
+******************************                Get_Available_Assistants              ************************************   manager
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Lowest_Worked_Assistants_By_Route(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+    DECLARE v_last_id INT;
+    DECLARE v_second_last_id INT;
+
+
+    SELECT working_assistant_id INTO v_last_id
+    FROM Working_Hours_Assistant
+    ORDER BY date DESC, time DESC
+    LIMIT 1;
+
+
+    SELECT working_assistant_id INTO v_second_last_id
+    FROM Working_Hours_Assistant
+    WHERE working_assistant_id < v_last_id
+    ORDER BY date DESC, time DESC
+    LIMIT 1;
+
+
+    SELECT 
+        a.assistant_id, 
+        a.name, 
+        IFNULL(SUM(TIME_TO_SEC(wh.worked_hours)) / 3600, 0) AS total_hours_in_hours
+    FROM Assistant a
+    LEFT JOIN Working_Hours_Assistant wh ON a.assistant_id = wh.assistant_id
+    WHERE a.branch_id = p_branch_id  
+    AND (wh.date IS NULL OR WEEK(wh.date) = WEEK(CURDATE()))  
+    AND a.assistant_id NOT IN (
+
+        SELECT tt.assistant_id 
+        FROM Truck_Trip tt 
+        WHERE tt.state = 0
+    )
+    AND a.assistant_id NOT IN (
+
+        SELECT wh2.assistant_id
+        FROM Working_Hours_Assistant wh2
+        WHERE wh2.working_assistant_id IN (v_last_id, v_second_last_id)
+    )
+    GROUP BY a.assistant_id, a.name
+    HAVING total_hours_in_hours < 60  
+    ORDER BY total_hours_in_hours ASC;  
+END $$
+
+DELIMITER ;
+
+
+
+
+*********************                 Add_Truck_Trip                   *******************************     managerr
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Add_Truck_Trip(
+    IN p_truck_id VARCHAR(5),
+    IN p_assistant_id VARCHAR(5),
+    IN p_driver_id VARCHAR(5),
+    IN p_route_id VARCHAR(10)
+)
+BEGIN
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;  
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error occurred while adding truck trip';
+    END;
+                                ###########   removed
+
+    START TRANSACTION;
+
+
+    INSERT INTO Truck_Trip (truck_id, assistant_id, driver_id, route_id, date, state)
+    VALUES (p_truck_id, p_assistant_id, p_driver_id, p_route_id, NOW(), 0);
+
+
+    COMMIT;
+END $$                         
+
+DELIMITER ;
+
+
+
+
+
+$$$$$$$$$$$$$$$$$$$$4    updated
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Add_Truck_Trip(
+    IN p_truck_id VARCHAR(5),
+    IN p_assistant_id VARCHAR(5),
+    IN p_driver_id VARCHAR(5),
+    IN p_route_id VARCHAR(10)
+)
+BEGIN
+    DECLARE v_capacity INT;
+
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;  
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error occurred while adding truck trip';
+    END;
+
+
+    START TRANSACTION;
+
+
+    SELECT capacity INTO v_capacity
+    FROM Truck
+    WHERE truck_id = p_truck_id;
+
+
+    INSERT INTO Truck_Trip (truck_id, assistant_id, driver_id, route_id, date, state, cur_capacity)
+    VALUES (p_truck_id, p_assistant_id, p_driver_id, p_route_id, NOW(), 0, v_capacity);
+
+
+    COMMIT;
+END $$
+
+DELIMITER ;
+
+
+
+**********************          Get_Available_Trucks_By_Branch              ************************       manger
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Available_Trucks_By_Branch(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+
+    SELECT t.truck_id
+    FROM Truck t
+    WHERE t.branch_id = p_branch_id
+    AND t.truck_id NOT IN (
+        SELECT tt.truck_id
+        FROM Truck_Trip tt
+        WHERE tt.state = 0
+    );
+END $$
+
+DELIMITER ;
+
+
+*****************************        Get_Order_Details_By_Route_And_State2         *************************************     manager
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Order_Details_By_Route_And_State2(
+    IN p_route_id VARCHAR(10)
+)
+BEGIN
+
+    SELECT order_id, quantity, date, total_price, total_capacity, time, delivery_type, customer_id, product_id, branch_id
+    FROM Order_Product
+    WHERE route_id = p_route_id
+    AND state = 2;
+END $$
+
+DELIMITER ;
+
+
+
+****************************            Insert_Delivery           ******************************    manager
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Insert_Delivery(
+    IN p_truck_trip_id INT,
+    IN p_order_id INT
+)
+BEGIN
+    DECLARE v_total_capacity INT;
+    DECLARE v_customer_id INT;
+    DECLARE v_route_id VARCHAR(10);
+    DECLARE v_cur_capacity INT;
+
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;  
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transaction failed due to an SQL exception';
+    END;
+
+
+    START TRANSACTION;
+
+
+    SELECT total_capacity, customer_id, route_id
+    INTO v_total_capacity, v_customer_id, v_route_id
+    FROM Order_Product
+    WHERE order_id = p_order_id;
+
+
+    SELECT cur_capacity
+    INTO v_cur_capacity
+    FROM Truck_Trip
+    WHERE truck_trip_id = p_truck_trip_id;
+
+
+    IF v_cur_capacity >= v_total_capacity THEN
+
+        UPDATE Truck_Trip
+        SET cur_capacity = cur_capacity - v_total_capacity
+        WHERE truck_trip_id = p_truck_trip_id;
+
+
+        INSERT INTO Delivery (truck_trip_id, customer_id, order_id, route_id, state, date)
+        VALUES (p_truck_trip_id, v_customer_id, p_order_id, v_route_id, 0, CURDATE());
+
+
+        UPDATE Order_Product
+        SET state = 3
+        WHERE order_id = p_order_id AND state = 2;
+
+
+        COMMIT;
+    ELSE
+
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error: Truck capacity is insufficient for the order.';
+    END IF;
+
+END $$
+
+DELIMITER ;
+
+
+
+************************            Get_Assistant_Order_Details_By_Truck_Trip            ***************************   assistant
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Assistant_Order_Details_By_Truck_Trip(
+    IN p_assistant_id VARCHAR(5)
+)
+BEGIN
+    DECLARE v_route_id VARCHAR(10);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transaction failed due to an SQL exception';
+    END;
+
+    START TRANSACTION;
+
+
+    SELECT route_id
+    INTO v_route_id
+    FROM Truck_Trip
+    WHERE assistant_id = p_assistant_id
+      AND state = 0
+    ORDER BY date DESC
+    LIMIT 1;
+
+
+    SELECT 
+        op.order_id AS `Order ID`, 
+        op.customer_id AS `Customer ID`, 
+        c.contact_number AS `Contact Number`
+    FROM Order_Product op
+    JOIN Customer c ON op.customer_id = c.customer_id
+    WHERE op.route_id = v_route_id
+      AND op.state = 3;
+
+    COMMIT;
+
+END $$
+
+DELIMITER ;
+
+
+************************        Update_Order3-4_And_Delivery_Status0-1_Delivered           *********************************   assistant
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Update_Order3_4_And_Delivery_Status0_1_Delivered(
+    IN p_order_id INT
+)
+BEGIN
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;  
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transaction failed due to an SQL exception';
+    END;
+
+    START TRANSACTION;
+
+
+    UPDATE Order_Product
+    SET state = 4
+    WHERE order_id = p_order_id
+      AND state = 3;
+
+    COMMIT;
+END $$
+
+DELIMITER ;
+
+
+
+**********************     Update_Order3-5_And_Delivery_Status0-2_Returned         ***********************************    assistant
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Update_Order3_5_And_Delivery_Status0_2_Returned(
+    IN p_order_id INT
+)
+BEGIN
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;  
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transaction failed due to an SQL exception';
+    END;
+
+    START TRANSACTION;
+
+    UPDATE Order_Product
+    SET state = 5
+    WHERE order_id = p_order_id
+      AND state = 3;
+
+    COMMIT;
+END $$
+
+DELIMITER ;
+
+
+
+********************       Get_Truck_Trips_By_Branch_not_complete           ****************************     manager
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Future_Truck_Trips_By_Branch(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+
+    SELECT truck_trip_id, truck_id, driver_id, assistant_id, route_id, date
+    FROM Truck_Trip
+    WHERE state = 0
+    AND branch_id = p_branch_id
+    AND date > CURDATE();  
+END $$
+
+DELIMITER ;
+
+
+********************             End_The_Truck_Trip_branch             ************************     manage
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE End_The_Truck_Trip_branch(
+    IN p_truck_trip_id VARCHAR(7)
+)
+BEGIN
+    DECLARE v_route_id VARCHAR(10);
+    DECLARE v_driver_id VARCHAR(5);
+    DECLARE v_assistant_id VARCHAR(5);
+    DECLARE v_max_time TIME;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;  
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Transaction failed due to an SQL exception';
+    END;
+
+    START TRANSACTION;
+
+
+    SELECT route_id, driver_id, assistant_id
+    INTO v_route_id, v_driver_id, v_assistant_id
+    FROM Truck_Trip
+    WHERE truck_trip_id = p_truck_trip_id;
+
+
+    SELECT max_time
+    INTO v_max_time
+    FROM Route
+    WHERE route_id = v_route_id;
+
+
+    INSERT INTO Working_Hours_Drivers (driver_id, worked_hours, date, time)
+    VALUES (v_driver_id, v_max_time, CURDATE(), CURTIME());
+
+
+    INSERT INTO Working_Hours_Assistant (assistant_id, worked_hours, date, time)
+    VALUES (v_assistant_id, v_max_time, CURDATE(), CURTIME());
+
+
+    UPDATE Truck_Trip
+    SET state = 1
+    WHERE truck_trip_id = p_truck_trip_id;
+
+    COMMIT;
+
+END $$
+
+DELIMITER ;
+
+
+
+
+******************          Get_Quarterly_Order_Count_Report                 ********************      admin         ;lmkkjnjknnkjnjnnjknjjhbhgvgfcdfxdf
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Quarterly_Order_Count_Report()
+BEGIN
+
+    SELECT 
+        QUARTER(date) AS quarter, 
+        COUNT(order_id) AS order_count
+    FROM Order_Product
+    WHERE YEAR(date) = YEAR(CURDATE())  
+    GROUP BY QUARTER(date)
+    ORDER BY quarter;
+    
+END $$
+
+DELIMITER ;
+
+
+
+****************          Get_Current_Month_Order_Count_By_Branch_Name              ****************       admin
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Current_Month_Order_Count_By_Branch_Name()
+BEGIN
+
+    SELECT 
+        b.branch_name,
+        COUNT(op.order_id) AS order_count
+    FROM Order_Product op
+    JOIN Branch b ON op.branch_id = b.branch_id
+    WHERE YEAR(op.date) = YEAR(CURDATE()) 
+    AND MONTH(op.date) = MONTH(CURDATE())
+    GROUP BY b.branch_name;
+
+END $$
+
+DELIMITER ;
+
+
+
+
+
+***********************         Get_Order_Ids_By_Train_Trip                ***************************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Order_Ids_By_Train_Trip(
+    IN p_train_trip_id VARCHAR(5)
+)
+BEGIN
+
+    SELECT order_id
+    FROM Order_Train
+    WHERE train_trip_id = p_train_trip_id;
+    
+END $$
+
+DELIMITER ;
+
+
+
+*********************             Get_Orders_By_Train_And_Date                ************************   admin
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Orders_By_Train_And_Date(
+    IN p_train_id VARCHAR(5),
+    IN p_date DATE
+)
+BEGIN
+    DECLARE v_branch_id VARCHAR(6);
+
+
+    SELECT branch_id INTO v_branch_id
+    FROM Train_Trip
+    WHERE train_id = p_train_id
+    AND date = p_date;
+
+
+    SELECT 
+        order_id
+    FROM Order_Product
+    WHERE state = 0
+    AND branch_id = v_branch_id;
+
+END $$
+
+DELIMITER ;
+
+
+
+***************            Get_Future_Train_Trips            *************************            admin
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Future_Train_Trips()
+BEGIN
+
+    SELECT 
+        train_trip_id, 
+        train_id, 
+        cur_capacity, 
+        date
+    FROM Train_Trip
+    WHERE date > CURDATE();  
+END $$
+
+DELIMITER ;
+
+
+
+
+
+
+***************            Get_Weekly_Working_Hours_Assistants()             ************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Weekly_Working_Hours_Assistants()
+BEGIN
+
+    SELECT 
+        a.name AS assistant_name,
+        SEC_TO_TIME(SUM(TIME_TO_SEC(wh.worked_hours))) AS total_worked_hours
+    FROM Assistant a
+    JOIN Working_Hours_Assistant wh ON a.assistant_id = wh.assistant_id
+    WHERE WEEK(wh.date) = WEEK(CURDATE())  
+    AND YEAR(wh.date) = YEAR(CURDATE())    
+    GROUP BY a.name
+    ORDER BY total_worked_hours DESC;
+
+END $$
+
+DELIMITER ;
+
+
+
+******************************************                   Get_Weekly_Working_Hours_Drivers                      *********************************************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Weekly_Working_Hours_Drivers()
+BEGIN
+
+    SELECT 
+        d.name AS driver_name,
+        SEC_TO_TIME(SUM(TIME_TO_SEC(wh.worked_hours))) AS total_worked_hours
+    FROM Driver d
+    JOIN Working_Hours_Drivers wh ON d.driver_id = wh.driver_id
+    WHERE WEEK(wh.date) = WEEK(CURDATE())  
+    AND YEAR(wh.date) = YEAR(CURDATE())    
+    GROUP BY d.name
+    ORDER BY total_worked_hours DESC;
+
+END $$
+
+DELIMITER ;
+
+
+*****************************                 Get_Total_Truck_Usage_Hours_This_Week                        *****************************************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Total_Truck_Usage_Hours_This_Week()
+BEGIN
+
+    SELECT 
+        tt.truck_id,
+        SEC_TO_TIME(SUM(TIME_TO_SEC(r.max_time))) AS total_trip_hours
+    FROM Truck_Trip tt
+    JOIN Route r ON tt.route_id = r.route_id
+    WHERE tt.state = 1  
+      AND WEEK(tt.date, 1) = WEEK(CURDATE(), 1)  
+      AND YEAR(tt.date) = YEAR(CURDATE())  
+    GROUP BY tt.truck_id
+    ORDER BY tt.truck_id;
+
+END $$
+
+DELIMITER ;
+
+
+
+*************         Get_Order_Details_By_Customer          **************    customer
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Order_Details_By_Customer(
+    IN p_customer_id VARCHAR(10)
+)
+BEGIN
+
+    SELECT 
+        op.order_id, 
+        p.product_name, 
+        op.quantity, 
+        op.date, 
+        op.state
+    FROM Order_Product op
+    JOIN Product p ON op.product_id = p.product_id
+    WHERE op.customer_id = p_customer_id
+    ORDER BY op.order_id DESC;
+
+END $$
+
+DELIMITER ;
+
+
+******************                      Get_Completed_Order_Details_By_Customer                  **************************   Customer
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Completed_Order_Details_By_Customer(
+    IN p_customer_id VARCHAR(10)
+)
+BEGIN
+
+    SELECT 
+        op.order_id, 
+        p.product_name, 
+        op.quantity, 
+        op.date, 
+        op.state
+    FROM Order_Product op
+    JOIN Product p ON op.product_id = p.product_id
+    WHERE op.customer_id = p_customer_id
+      AND op.state = 4  
+    ORDER BY op.order_id DESC;
+
+END $$
+
+DELIMITER ;
+
+
+*************************              Get_Pending_Order_Details_By_Customer                      *******************************     customer
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Pending_Order_Details_By_Customer(
+    IN p_customer_id VARCHAR(10)
+)
+BEGIN
+
+    SELECT 
+        op.order_id, 
+        p.product_name, 
+        op.quantity, 
+        op.date, 
+        op.state
+    FROM Order_Product op
+    JOIN Product p ON op.product_id = p.product_id
+    WHERE op.customer_id = p_customer_id
+      AND op.state < 4  
+    ORDER BY op.order_id DESC;
+
+END $$
+
+DELIMITER ;
+
+
+
+
+****************************      Get_All_Order_Details_By_Customer         **********************************
+
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_All_Order_Details_By_Customer(
+    IN p_customer_id VARCHAR(10)
+)
+BEGIN
+
+    SELECT 
+        op.order_id, 
+        p.product_name, 
+        op.quantity, 
+        op.date, 
+        op.state
+    FROM Order_Product op
+    JOIN Product p ON op.product_id = p.product_id
+    WHERE op.customer_id = p_customer_id
+    ORDER BY op.order_id DESC;
+
+END $$
+
+DELIMITER ;
+
+
+
+******************          Insert_Driver               *******************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Insert_Driver(
+    IN p_driver_id VARCHAR(5),
+    IN p_email VARCHAR(40),
+    IN p_name VARCHAR(25),
+    IN p_contact_number VARCHAR(10),
+    IN p_salary INT,
+    IN p_branch_id VARCHAR(6),
+    IN p_password VARCHAR(15)
+)
+BEGIN
+
+    INSERT INTO Driver (
+        driver_id, 
+        email, 
+        name, 
+        contact_number, 
+        salary, 
+        weekly_hours, 
+        branch_id, 
+        password
+    ) 
+    VALUES (
+        p_driver_id, 
+        p_email, 
+        p_name, 
+        p_contact_number, 
+        p_salary, 
+        '40:00:00', 
+        p_branch_id, 
+        p_password
+    );
+END $$
+
+DELIMITER ;
+
+
+
+*********************             Insert_Assistant                 ***********************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Insert_Assistant(
+    IN p_assistant_id VARCHAR(5),
+    IN p_email VARCHAR(40),
+    IN p_name VARCHAR(25),
+    IN p_contact_number VARCHAR(10),
+    IN p_salary INT,
+    IN p_branch_id VARCHAR(6),
+    IN p_password VARCHAR(15)
+)
+BEGIN
+
+    INSERT INTO Assistant (
+        assistant_id, 
+        email, 
+        name, 
+        contact_number, 
+        salary, 
+        working_hours, 
+        branch_id, 
+        password
+    ) 
+    VALUES (
+        p_assistant_id, 
+        p_email, 
+        p_name, 
+        p_contact_number, 
+        p_salary, 
+        '60:00:00',  
+        p_branch_id, 
+        p_password
+    );
+END $$
+
+DELIMITER ;
+
+
+
+**********************              Get_Order_Summary_Desc               ***********************     admin  
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Order_Summary_Desc()
+BEGIN
+    SELECT 
+        op.order_id AS `Order ID`,
+        c.name AS `Customer`,
+        op.total_price AS `Total`,
+        op.state AS `Status`
+    FROM Order_Product op
+    JOIN Customer c ON op.customer_id = c.customer_id
+    ORDER BY op.order_id DESC;
+END $$
+
+DELIMITER ;
+
+
+*************************               Get_Order_Summary_By_Branch_And_State                 **************************    manager
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Order_Summary_By_Branch_And_State(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+    SELECT 
+        op.order_id AS `Order ID`,
+        c.name AS `Customer`,
+        op.total_price AS `Total`,
+        op.state AS `Status`
+    FROM Order_Product op
+    JOIN Customer c ON op.customer_id = c.customer_id
+    WHERE op.branch_id = p_branch_id
+      AND op.state > 0
+    ORDER BY op.order_id DESC;
+END $$
+
+DELIMITER ;
+
+
+****************************        Get_Completed_Trip_Details_By_Assistant            ***********************************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Completed_Trip_Details_By_Assistant(
+    IN p_assistant_id VARCHAR(5)
+)
+BEGIN
+    SELECT 
+        tt.truck_trip_id AS `Trip ID`,
+        r.route_name AS `Route`,
+        d.name AS `Driver`,
+        t.truck_id AS `Truck`,
+        tt.date AS `Date`
+    FROM Truck_Trip tt
+    JOIN Route r ON tt.route_id = r.route_id
+    JOIN Driver d ON tt.driver_id = d.driver_id
+    JOIN Truck t ON tt.truck_id = t.truck_id
+    WHERE tt.assistant_id = p_assistant_id
+      AND tt.state = 1  
+    ORDER BY tt.truck_trip_id DESC;
+
+END $$
+
+DELIMITER ;
+
+
+
+******************************               Get_Trip_Details_By_Driver               
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Trip_Details_By_Driver(
+    IN p_driver_id VARCHAR(5)
+)
+BEGIN
+    SELECT 
+        tt.truck_trip_id AS `Trip ID`,
+        r.route_name AS `Route`,
+        a.name AS `Assistant`,
+        t.truck_id AS `Truck`,
+        tt.date AS `Date`
+    FROM Truck_Trip tt
+    JOIN Route r ON tt.route_id = r.route_id
+    JOIN Assistant a ON tt.assistant_id = a.assistant_id
+    JOIN Truck t ON tt.truck_id = t.truck_id
+    WHERE tt.driver_id = p_driver_id
+      AND tt.state = 1  
+    ORDER BY tt.truck_trip_id DESC;
+
+END $$
+
+DELIMITER ;
+
+
+
+**************************                 Get_Quarterly_Sales_Report                ***********************
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Quarterly_Sales_Report(
+    IN p_year INT
+)
+BEGIN
+    SELECT 
+        QUARTER(date) AS `Quarter`,
+        SUM(total_price) AS `Total Sales`
+    FROM Order_Product
+    WHERE YEAR(date) = p_year
+    GROUP BY QUARTER(date)
+    ORDER BY QUARTER(date);
+END $$
+
+DELIMITER ;
+
+
+
+**************************          Get_Sales_By_Cities_And_Routes            ************************************
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Sales_By_Cities_And_Routes()
+BEGIN
+    
+    SELECT 
+        b.branch_name AS city, 
+        r.route_name AS route, 
+        SUM(op.total_price) AS total_sales
+    FROM Order_Product op
+    JOIN Route r ON op.route_id = r.route_id
+    JOIN Branch b ON r.branch_id = b.branch_id
+    GROUP BY b.branch_name, r.route_name
+    ORDER BY b.branch_name, r.route_name;
+END $$
+
+DELIMITER ;
+
+
+
+*****************************             Get_Items_With_Most_Orders_Current_Year()                *********************************
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Items_With_Most_Orders_Current_Year()
+BEGIN
+
+    SELECT 
+        p.product_name, 
+        SUM(op.quantity) AS total_count
+    FROM Order_Product op
+    JOIN Product p ON op.product_id = p.product_id
+    WHERE YEAR(op.date) = YEAR(CURDATE())  
+    GROUP BY p.product_name
+    ORDER BY total_count DESC;
+
+END $$
+
+DELIMITER ;

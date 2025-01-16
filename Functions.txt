@@ -1,0 +1,258 @@
+#################                  FUNCTIONS                  ##############################
+
+
+
+********************       GetAssistantWeeklyWorkedHours              *****************
+
+
+
+
+DELIMITER //
+
+CREATE FUNCTION GetAssistantWeeklyWorkedHours(assistant_id_input VARCHAR(5))
+RETURNS INT
+BEGIN
+    DECLARE total_hours INT;
+
+    SET total_hours = (
+        SELECT SUM(worked_hours)
+        FROM Working_Hours_Assistant
+        WHERE assistant_id = assistant_id_input
+        AND YEARWEEK(date, 1) = YEARWEEK(CURDATE(), 1) 
+    );
+
+    RETURN IFNULL(total_hours, 0); 
+END //
+
+DELIMITER ;
+
+
+
+*******************************       GetDriverWeeklyWorkedHours         *****************************
+
+
+
+DELIMITER //
+
+CREATE FUNCTION GetDriverWeeklyWorkedHours(driver_id_input VARCHAR(5))
+RETURNS INT
+BEGIN
+    DECLARE total_hours INT;
+
+    SET total_hours = (
+        SELECT SUM(worked_hours)
+        FROM Working_Hours_Drivers
+        WHERE driver_id = driver_id_input
+        AND YEARWEEK(date, 1) = YEARWEEK(CURDATE(), 1) -- '1' makes the week start from Monday
+    );
+
+    RETURN IFNULL(total_hours, 0); -- Return 0 if there are no hours logged
+END //
+
+DELIMITER ;
+
+
+
+
+
+*************************                     Get_Order_Count_By_Customer                      ***************************   customer 
+
+
+DELIMITER $$
+
+CREATE FUNCTION Get_Order_Count_By_Customer(p_customer_id VARCHAR(10))
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE order_count INT;
+
+    SELECT COUNT(order_id) INTO order_count
+    FROM Order_Product
+    WHERE customer_id = p_customer_id;
+
+    RETURN order_count;
+END $$
+
+DELIMITER ;
+
+
+
+*****************************                Get_Order_Count_By_Customer_State                  *****************************   customer
+
+
+
+DELIMITER $$
+
+CREATE FUNCTION Get_Order_Count_By_Customer_State(p_customer_id VARCHAR(10))
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE order_count INT;
+
+    SELECT COUNT(order_id) INTO order_count
+    FROM Order_Product
+    WHERE customer_id = p_customer_id
+      AND state < 4;
+
+    RETURN order_count;
+END $$
+
+DELIMITER ;
+
+
+***********************             Get_Completed_Order_Count_By_Customer                ****************************    customer
+
+
+DELIMITER $$
+
+CREATE FUNCTION Get_Completed_Order_Count_By_Customer(p_customer_id VARCHAR(10))
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE order_count INT;
+
+    SELECT COUNT(order_id) INTO order_count
+    FROM Order_Product
+    WHERE customer_id = p_customer_id
+      AND state = 4;
+
+    RETURN order_count;
+END $$
+
+DELIMITER ;
+
+
+
+************************            Get_Left_Working_Hours_Assistant              ****************************
+
+
+
+DELIMITER $$
+
+CREATE FUNCTION Get_Left_Working_Hours_Assistant(
+    p_assistant_id VARCHAR(5)
+)
+RETURNS TIME  
+DETERMINISTIC
+BEGIN
+    DECLARE max_weekly_seconds INT DEFAULT 216000;  
+    DECLARE total_worked_seconds INT;
+
+
+    SELECT IFNULL(SUM(TIME_TO_SEC(wh.worked_hours)), 0)
+    INTO total_worked_seconds
+    FROM Working_Hours_Assistant wh
+    WHERE wh.assistant_id = p_assistant_id
+      AND WEEK(wh.date) = WEEK(CURDATE())
+      AND YEAR(wh.date) = YEAR(CURDATE());
+
+
+    RETURN SEC_TO_TIME(max_weekly_seconds - total_worked_seconds);
+END $$
+
+DELIMITER ;
+
+
+
+**************************                Get_Left_Working_Hours_Driver                ***********************
+
+
+
+DELIMITER $$
+
+CREATE FUNCTION Get_Left_Working_Hours_Driver(
+    p_driver_id VARCHAR(5)
+)
+RETURNS TIME  
+DETERMINISTIC
+BEGIN
+    DECLARE max_weekly_seconds INT DEFAULT 144000;  
+    DECLARE total_worked_seconds INT;
+
+    
+    SELECT IFNULL(SUM(TIME_TO_SEC(wh.worked_hours)), 0)
+    INTO total_worked_seconds
+    FROM Working_Hours_Drivers wh
+    WHERE wh.driver_id = p_driver_id
+      AND WEEK(wh.date) = WEEK(CURDATE())
+      AND YEAR(wh.date) = YEAR(CURDATE());
+
+    
+    RETURN SEC_TO_TIME(max_weekly_seconds - total_worked_seconds);
+END $$
+
+DELIMITER ;
+
+
+
+**********************                     Get_Monthly_Order_Count_By_Branch                        ****************************
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE Get_Monthly_Order_Count_By_Branch(
+    IN p_branch_id VARCHAR(6)
+)
+BEGIN
+    SELECT 
+        MONTH(date) AS Month,
+        COUNT(order_id) AS Order_Count
+    FROM Order_Product
+    WHERE branch_id = p_branch_id
+      AND YEAR(date) = YEAR(CURDATE())  
+    GROUP BY MONTH(date)
+    ORDER BY MONTH(date);
+END $$
+
+DELIMITER ;
+
+
+**********************************         Get_Order_Count_By_Customer_State0            ******************************
+
+
+DELIMITER $$
+
+CREATE FUNCTION Get_Order_Count_By_Customer_State0(
+    p_customer_id INT
+)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE order_count INT;
+
+    SELECT COUNT(order_id) 
+    INTO order_count
+    FROM Order_Product
+    WHERE customer_id = p_customer_id
+      AND state = 0;
+
+    RETURN order_count;
+END $$
+
+DELIMITER ;
+
+
+*******************************             Get_Order_Count_By_Customer_State4_5                  *************************************
+
+
+DELIMITER $$
+
+CREATE FUNCTION Get_Order_Count_By_Customer_State4_5(
+    p_customer_id INT
+)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE order_count INT;
+
+    SELECT COUNT(order_id) 
+    INTO order_count
+    FROM Order_Product
+    WHERE customer_id = p_customer_id
+      AND state IN (4, 5);
+
+    RETURN order_count;
+END $$
+
+DELIMITER ;

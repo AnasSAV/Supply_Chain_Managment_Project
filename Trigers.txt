@@ -1,0 +1,48 @@
+#########################################                     triggers                         ########################
+
+
+
+
+*******************                     After_Order_Product_Update                           *************************
+
+
+DELIMITER $$
+
+CREATE TRIGGER After_Order_Product_Update
+AFTER UPDATE ON Order_Product
+FOR EACH ROW
+BEGIN
+
+    IF NEW.state = 4 AND OLD.state = 3 THEN
+        UPDATE Delivery
+        SET state = 1
+        WHERE order_id = NEW.order_id
+          AND state = 0;
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+
+
+**********************                 After_Order_Product_Returned_Update                 *********************************
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER After_Order_Product_Returned_Update
+AFTER UPDATE ON Order_Product
+FOR EACH ROW
+BEGIN
+
+    IF NEW.state = 5 AND OLD.state = 3 THEN
+        UPDATE Delivery
+        SET state = 2
+        WHERE order_id = NEW.order_id
+          AND state = 0;
+    END IF;
+END $$
+
+DELIMITER ;
